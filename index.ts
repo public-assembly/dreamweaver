@@ -4,6 +4,8 @@ import Bundlr from '@bundlr-network/client';
 import * as fs from 'fs';
 // Import and configure dotenv
 import 'dotenv/config';
+// Import event fetching function
+import { getPressCreationEvents } from './fetchEvents';
 
 async function main() {
   // Set up a reference to a bundlr object
@@ -33,6 +35,10 @@ async function main() {
   const convertedBalance = bundlr.utils.fromAtomic(atomicBalance);
 
   console.log('Account balance:', convertedBalance);
+
+  // const { logs } = await getPressCreationEvents();
+
+  // const uploadTx = await bundlr.upload(logs);
 
   // const pathToFile = './images/your_image.png';
 
