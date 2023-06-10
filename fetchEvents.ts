@@ -14,11 +14,12 @@ export async function getPressCreationEvents() {
   // Return a list of event logs since the filter was created
   const logs = await client.getFilterLogs({ filter });
 
-  // const prettyLogs = JSON.stringify(logs)
+  const replacer = (key: string, value: bigint) =>
+    typeof value === 'bigint' ? value.toString() : value;
 
-  console.log('Event logs', logs);
+  const logsJson = JSON.stringify(logs, replacer);
 
-  // return prettyLogs;
+  return logsJson;
 }
 
 getPressCreationEvents();
