@@ -45,8 +45,8 @@ async function main() {
   console.log(typeof logsJson);
 
   // Add a custom tag that tells the browser how to properly render the file
-  const tags = [{ name: "Content-Type", value: "application/json" }];
-  
+  const tags = [{ name: 'Content-Type', value: 'application/json' }];
+
   // @ts-ignore
   const response = await bundlr.upload(logsJson, tags);
 
