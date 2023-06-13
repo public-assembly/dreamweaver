@@ -1,3 +1,6 @@
 [submodule "onchain/lib/solmate"]
 	path = onchain/lib/solmate
 	url = https://github.com/transmissions11/solmate
+[submodule "onchain/lib/openzeppelin-contracts"]
+	path = onchain/lib/openzeppelin-contracts
+	url = https://github.com/Openzeppelin/openzeppelin-contracts
