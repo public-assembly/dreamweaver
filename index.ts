@@ -44,7 +44,11 @@ async function main() {
 
   console.log(typeof logsJson);
 
-  const response = await bundlr.upload(logsJson);
+  // Add a custom tag that tells the browser how to properly render the file
+  const tags = [{ name: "Content-Type", value: "application/json" }];
+  
+  // @ts-ignore
+  const response = await bundlr.upload(logsJson, tags);
 
   console.log(`File uploaded ==> https://arweave.net/${response.id}`);
 
