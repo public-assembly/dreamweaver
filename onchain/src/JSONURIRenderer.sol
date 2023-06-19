@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
+
 /**
  * Modified from Context's JSONURIRenderer.sol
  * https://etherscan.io/address/0x9A12D9fCC221f93668D7aD9aC44D9623aE4fB6fb#code
