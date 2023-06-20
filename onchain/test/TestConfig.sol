@@ -9,15 +9,17 @@ import {PressPointer} from "../src/PressPointer.sol";
 import {JSONURIRenderer} from "../src/JSONURIRenderer.sol";
 
 contract TestConfig is Test {
-    string constant POINTER_NAME = "Pointer Version 1";
-    string constant POINTER_SYMBOL = "PNTR";
-    string constant BASE_URI = "https://arweave.net/";
+    string public constant POINTER_NAME = "Pointer Version 1";
+    string public constant POINTER_SYMBOL = "PNTR";
+    string public constant BASE_URI = "https://arweave.net/";
 
-    PressPointer pressPointer;
-    JSONURIRenderer jsonRenderer;
+    address public deployer = makeAddr("deployer");
+
+    PressPointer public pressPointer;
+    JSONURIRenderer public jsonRenderer;
 
     function setUp() public virtual {
-        pressPointer = new PressPointer(POINTER_NAME, POINTER_SYMBOL);
+        pressPointer = new PressPointer(POINTER_NAME, POINTER_SYMBOL, deployer);
         jsonRenderer = new JSONURIRenderer(BASE_URI);
         pressPointer.setMetadataRenderer(address(jsonRenderer));
     }
