@@ -1044,10 +1044,10 @@
         }
       }
     },
-    "script/Counter.s.sol": {
-      "lastModificationDate": 1686694609037,
-      "contentHash": "0705c52104730a78aef4aa6694175c81",
-      "sourceName": "script/Counter.s.sol",
+    "script/DeployScript.s.sol": {
+      "lastModificationDate": 1687302171684,
+      "contentHash": "67414dfd80404c004b4db305bb7bbd6c",
+      "sourceName": "script/DeployScript.s.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -1088,18 +1088,26 @@
         "lib/forge-std/src/Vm.sol",
         "lib/forge-std/src/console.sol",
         "lib/forge-std/src/console2.sol",
-        "lib/forge-std/src/interfaces/IMulticall3.sol"
+        "lib/forge-std/src/interfaces/IMulticall3.sol",
+        "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
+        "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
+        "lib/openzeppelin-contracts/contracts/utils/math/SignedMath.sol",
+        "lib/solmate/src/tokens/ERC721.sol",
+        "src/JSONURIRenderer.sol",
+        "src/PressPointer.sol"
       ],
       "versionRequirement": "^0.8.13",
       "artifacts": {
-        "CounterScript": {
-          "0.8.19+commit.7dd6d404.Darwin.appleclang": "Counter.s.sol/CounterScript.json"
+        "DeployScript": {
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "DeployScript.s.sol/DeployScript.json"
         }
       }
     },
     "src/JSONURIRenderer.sol": {
-      "lastModificationDate": 1687192703467,
-      "contentHash": "4cc8ef8d0bcd791849041849283352d9",
+      "lastModificationDate": 1687298699312,
+      "contentHash": "67734f5131a158f1c431b9f528c1bb9d",
       "sourceName": "src/JSONURIRenderer.sol",
       "solcConfig": {
         "settings": {
@@ -1147,8 +1155,8 @@
       }
     },
     "src/PressPointer.sol": {
-      "lastModificationDate": 1687194289619,
-      "contentHash": "7feed668376a42b9d5e37a513d7adb4b",
+      "lastModificationDate": 1687300628277,
+      "contentHash": "03c4b254327a16f19d52ce168f85df2c",
       "sourceName": "src/PressPointer.sol",
       "solcConfig": {
         "settings": {
@@ -1195,8 +1203,8 @@
       }
     },
     "test/PressPointer.t.sol": {
-      "lastModificationDate": 1687195329575,
-      "contentHash": "55d46fca5f4cd410760f972745fe4f98",
+      "lastModificationDate": 1687301844357,
+      "contentHash": "0ef7d9e5bfa7858ed236f0aaeba17e1e",
       "sourceName": "test/PressPointer.t.sol",
       "solcConfig": {
         "settings": {
@@ -1262,8 +1270,8 @@
       }
     },
     "test/TestConfig.sol": {
-      "lastModificationDate": 1687194750215,
-      "contentHash": "59791301ac35734d38d57505dc1dbbd1",
+      "lastModificationDate": 1687301844357,
+      "contentHash": "45a98dc6a9697e4ab7997bc16a2e3274",
       "sourceName": "test/TestConfig.sol",
       "solcConfig": {
         "settings": {
