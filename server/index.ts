@@ -36,32 +36,21 @@ async function main() {
 
   const convertedBalance = bundlr.utils.fromAtomic(atomicBalance).toString();
 
-  console.log('Account balance:', convertedBalance);
+  // console.log('Account balance:', convertedBalance);
 
   const logsJson = await getPressCreationEvents();
-
-  // console.log('Press creation events:', logs);
-
-  console.log(typeof logsJson);
 
   // Add a custom tag that tells the browser how to properly render the file
   const tags = [
     { name: 'Content-Type', value: 'application/json' },
-    { name: 'Press Events', value: '' },
+    { name: 'Press Events', value: 'Create721Press' },
   ];
 
-  // @ts-ignore
-  const response = await bundlr.upload(logsJson, tags);
+  const response = await bundlr.upload(logsJson, { tags });
 
-  console.log(`File uploaded ==> https://arweave.net/${response.id}`);
+  console.log(`Transaction hash ==> https://arweave.net/${response.id}`);
 
   const pathToData = `https://arweave.net/${response.id}`;
-
-  // const pathToFile = './images/your_image.png';
-
-  // const response = await bundlr.uploadFile(pathToFile);
-
-  // console.log('File uploaded:', `https://arweave.net/${response.id}`);
 
   return pathToData;
 }

@@ -17,7 +17,7 @@ export async function getPressCreationEvents() {
   const replacer = (key: string, value: bigint) =>
     typeof value === 'bigint' ? value.toString() : value;
 
-  const logsJson = JSON.stringify(logs, replacer);
+  const logsJson = JSON.stringify(logs, replacer, 2);
 
   return logsJson;
 }
