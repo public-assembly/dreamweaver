@@ -1,7 +1,12 @@
-import { createPublicClient, http } from 'viem'
-import { sepolia } from 'viem/chains'
+import { createPublicClient, http } from 'viem';
+import { sepolia } from 'viem/chains';
+import 'dotenv/config';
 
-export const client = createPublicClient({ 
+const transport = http(
+  `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_KEY}`
+);
+
+export const client = createPublicClient({
   chain: sepolia,
-  transport: http()
-})
+  transport,
+});
