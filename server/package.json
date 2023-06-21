@@ -10,7 +10,7 @@
   "dependencies": {
     "@bundlr-network/client": "^0.11.2",
     "dotenv": "^16.1.4",
-    "viem": "^0.3.50"
+    "viem": "^1.1.1"
   },
   "devDependencies": {
     "ts-node": "^10.9.1",

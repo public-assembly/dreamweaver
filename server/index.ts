@@ -36,7 +36,7 @@ async function main() {
 
   const convertedBalance = bundlr.utils.fromAtomic(atomicBalance).toString();
 
-  // console.log('Account balance:', convertedBalance);
+  console.log('Account balance:', convertedBalance);
 
   const logsJson = await getPressCreationEvents();
 
@@ -45,7 +45,10 @@ async function main() {
   console.log(typeof logsJson);
 
   // Add a custom tag that tells the browser how to properly render the file
-  const tags = [{ name: 'Content-Type', value: 'application/json' }];
+  const tags = [
+    { name: 'Content-Type', value: 'application/json' },
+    { name: 'Press Events', value: '' },
+  ];
 
   // @ts-ignore
   const response = await bundlr.upload(logsJson, tags);
