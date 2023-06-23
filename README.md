@@ -1,1 +1,1 @@
-Onchain event listener processing AssemblyPress events and posting them to Arweave
+Onchain event listener processing Assembly Press events and posting them to Arweave
