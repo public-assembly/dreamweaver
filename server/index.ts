@@ -15,7 +15,7 @@ async function main() {
     process.env.PRIVATE_KEY,
     {
       // Required to provide an RPC URL when using the dev net
-      providerUrl: 'https://eth-goerli.g.alchemy.com/v2/demo',
+      providerUrl: 'https://eth-sepolia.g.alchemy.com/v2/ISdh17Pa5NSsI-DNVufOeaGhwW8nF8Bk',
     }
   );
 
@@ -29,14 +29,21 @@ async function main() {
    *
    * .1 Ether * 1e18 Wei/Ether 1e17 Wei
    */
+
+  // ONLY FUND ONCE THEM COMMENT OUT 
+
   // const fundTx = await bundlr.fund(1e17);
 
   // Query the your wallet balance on the connected node
+
+
   const atomicBalance = await bundlr.getLoadedBalance();
 
   const convertedBalance = bundlr.utils.fromAtomic(atomicBalance).toString();
 
-  // console.log('Account balance:', convertedBalance);
+  // uncomment after running fundTx
+
+  console.log('Account balance:', convertedBalance);
 
   const logsJson = await getPressCreationEvents();
 
