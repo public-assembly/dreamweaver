@@ -47,6 +47,12 @@ async function main() {
 
   const logsJson = await getPressCreationEvents();
 
+  // If there are no new logs, don't upload anything
+  if (logsJson === '{}') {
+    console.log('No new logs to upload.');
+    return;
+  }
+
   // Add a custom tag that tells the browser how to properly render the file
   const tags = [
     { name: 'Content-Type', value: 'application/json' },
@@ -62,4 +68,5 @@ async function main() {
   return pathToData;
 }
 
+console.log('Starting to fetch press creation events...');
 main();
