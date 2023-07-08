@@ -17,12 +17,12 @@ export async function getLastCheckedBlock(): Promise<bigint> {
     } else {
       // If the file does not exist, return the hardcoded block number
       console.log('File does not exist, returning hardcoded block number 3570435');
-      return BigInt(3570435);
+      return BigInt(3570818);
     }
   } catch (error) {
     console.error(`Failed to get last checked block number: ${error}`);
     // If an error occurs, return the hardcoded block number
-    return BigInt(3570435);
+    return BigInt(3570818);
   }
 }
 

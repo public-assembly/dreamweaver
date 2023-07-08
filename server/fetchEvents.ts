@@ -1,8 +1,58 @@
 import { client } from './viem';
 import type { Hex } from 'viem';
+import { getLastCheckedBlock, updateLastCheckedBlock } from './lastBlockCheck';
+import Bundlr from '@bundlr-network/client';
 import { ERC721PressFactoryAbi } from './abi';
 import { SEPOLIA_ADDRESSES } from './contractAddresses/addresses';
-import { getLastCheckedBlock, updateLastCheckedBlock } from './lastBlockCheck'
+
+// Constants
+const ABI = ERC721PressFactoryAbi;
+const ADDRESS = SEPOLIA_ADDRESSES.ERC721.ERC721_PRESS_FACTORY_PROXY as Hex;
+const EVENT_NAME = 'Create721Press';
+
+// Custom replacer function to handle BigInt serialization
+const replacer = (key: string, value: any) => {
+  if (typeof value === 'bigint') {
+    return value.toString();
+  }
+  return value;
+};
+
+async function fetchLogs(fromBlock: bigint, toBlock: bigint) {
+  const filter = await client.createContractEventFilter({
+    abi: ABI,
+    address: ADDRESS,
+    eventName: EVENT_NAME,
+    fromBlock: BigInt(fromBlock),
+    toBlock: BigInt(toBlock),
+  });
+
+  console.log(`Filter created for blocks ${fromBlock} to ${toBlock}, getting logs...`);
+
+  // Return a list of event logs since the filter was created
+  const logs = await client.getFilterLogs({ filter });
+  return logs;
+}
+
+async function uploadLog(log: any) {
+  const bundlr = new Bundlr(
+    'http://devnet.bundlr.network',
+    'ethereum',
+    process.env.PRIVATE_KEY,
+    {
+      providerUrl: 'https://eth-sepolia.g.alchemy.com/v2/ISdh17Pa5NSsI-DNVufOeaGhwW8nF8Bk',
+    }
+  );
+
+  const tags = [
+    { name: 'Content-Type', value: 'application/json' },
+    { name: 'Press Events', value: EVENT_NAME },
+  ];
+
+  const response = await bundlr.upload(JSON.stringify(log, replacer, 2), { tags });
+
+  console.log(`Uploaded log: https://arweave.net/${response.id}`);
+}
 
 export async function getPressCreationEvents() {
   console.log('Fetching press creation events...');
@@ -11,30 +61,25 @@ export async function getPressCreationEvents() {
   const currentBlock = await client.getBlockNumber();
   console.log(`Current block number is ${currentBlock}`);
 
-  // Create a filter to retrieve event logs
+  // Get the last checked block number
   let fromBlock = await getLastCheckedBlock();
-  let toBlock = fromBlock + BigInt(1); // Define the end of the block range for the first batch
 
   // Declare an array to store all logs
   const allLogs = [];
 
   while (fromBlock <= currentBlock) {
-    const filter = await client.createContractEventFilter({
-      abi: ERC721PressFactoryAbi,
-      address: SEPOLIA_ADDRESSES.ERC721.ERC721_PRESS_FACTORY_PROXY as Hex,
-      eventName: 'Create721Press',
-      fromBlock: BigInt(fromBlock), // Start of the block range
-      toBlock: BigInt(toBlock), // End of the block range
-    });
-    console.log(`Filter created for blocks ${fromBlock} to ${toBlock}, getting logs...`);
-    // Return a list of event logs since the filter was created
-    const logs = await client.getFilterLogs({ filter });
+    const toBlock = fromBlock + BigInt(1); // Define the end of the block range
 
-    // Push the logs from this batch into the allLogs array
-    allLogs.push(...logs);
+    // Fetch logs
+    const logs = await fetchLogs(fromBlock, toBlock);
 
     if (logs.length > 0) {
       console.log(`New logs found`);
+
+      for (const log of logs) {
+        await uploadLog(log); // Upload each log immediately after it is fetched
+        allLogs.push(log);
+      }
     } else {
       console.log('No new logs received');
     }
@@ -45,7 +90,6 @@ export async function getPressCreationEvents() {
 
     // Update the block range for the next batch
     fromBlock = toBlock + BigInt(1);
-    toBlock = toBlock + BigInt(1);
   }
 
   // If no new logs were found, return without uploading anything
@@ -54,9 +98,6 @@ export async function getPressCreationEvents() {
     return '{}';
   }
 
-  const replacer = (key: string, value: bigint) =>
-    typeof value === 'bigint' ? value.toString() : value;
-
   const logsJson = JSON.stringify(allLogs, replacer, 2);
   console.log('Returning logs...');
   return logsJson;
@@ -64,6 +105,7 @@ export async function getPressCreationEvents() {
 
 console.log('Starting to fetch press creation events...');
 getPressCreationEvents();
+
 
 //increment TEST 
 
