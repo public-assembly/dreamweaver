@@ -85,7 +85,7 @@ export async function getPressCreationEvents() {
     }
 
     // Update the last checked block number to the end of the current block range
-    console.log(`Updating last checked block number to ${toBlock}`);
+    // console.log(`Updating last checked block number to ${toBlock}`);
     await updateLastCheckedBlock(toBlock);
 
     // Update the block range for the next batch

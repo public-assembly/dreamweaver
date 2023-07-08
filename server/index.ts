@@ -53,11 +53,25 @@ async function main() {
     return;
   }
 
+  // LAZY FUNDING
+
+  // Calculate the size of the data to be uploaded
+  const size = Buffer.byteLength(logsJson, 'utf8');
+
+  // Get the price for the upload
+  const price = await bundlr.getPrice(size);
+  console.log(size)
+  // Fund the account with the exact price
+  await bundlr.fund(price);
+  console.log(price)
+
   // Add a custom tag that tells the browser how to properly render the file
   const tags = [
     { name: 'Content-Type', value: 'application/json' },
     { name: 'Press Events', value: 'Create721Press' },
   ];
+  
+  //
 
   const response = await bundlr.upload(logsJson, { tags });
 
