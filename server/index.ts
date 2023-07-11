@@ -1,10 +1,7 @@
-// Import the Bundlr object for server-side connections
+
 import Bundlr from '@bundlr-network/client';
-// Import fs (File system) to retrieve file sizes
 import * as fs from 'fs';
-// Import and configure dotenv
 import 'dotenv/config';
-// Import event fetching function
 import { getPressCreationEvents } from './fetchEvents';
 
 async function main() {
@@ -15,33 +12,15 @@ async function main() {
     process.env.PRIVATE_KEY,
     {
       // Required to provide an RPC URL when using the dev net
-      providerUrl: 'https://eth-sepolia.g.alchemy.com/v2/ISdh17Pa5NSsI-DNVufOeaGhwW8nF8Bk',
+    providerUrl: `https://eth-sepolia.g.alchemy.com/v2/${process.env.SEPOLIA_RPC_URL}`,
     }
   );
 
   console.log('Connected wallet address:', bundlr.address);
 
-  /**
-   * Set up upfront funding to the node
-   * Value supplied should be in atomic units
-   *
-   * .25 Ether * 1e18 Wei/Ether = 2.5e17 Wei
-   *
-   * .1 Ether * 1e18 Wei/Ether 1e17 Wei
-   */
-
-  // ONLY FUND ONCE THEM COMMENT OUT 
-
-  // const fundTx = await bundlr.fund(1e17);
-
-  // Query the your wallet balance on the connected node
-
-
   const atomicBalance = await bundlr.getLoadedBalance();
 
   const convertedBalance = bundlr.utils.fromAtomic(atomicBalance).toString();
-
-  // uncomment after running fundTx
 
   console.log('Account balance:', convertedBalance);
 
@@ -54,25 +33,20 @@ async function main() {
   }
 
   // LAZY FUNDING
-
   // Calculate the size of the data to be uploaded
   const size = Buffer.byteLength(logsJson, 'utf8');
-
   // Get the price for the upload
   const price = await bundlr.getPrice(size);
   console.log(size)
   // Fund the account with the exact price
   await bundlr.fund(price);
   console.log(price)
-
   // Add a custom tag that tells the browser how to properly render the file
   const tags = [
     { name: 'Content-Type', value: 'application/json' },
     { name: 'Press Events', value: 'Create721Press' },
   ];
   
-  //
-
   const response = await bundlr.upload(logsJson, { tags });
 
   console.log(`Transaction hash ==> https://arweave.net/${response.id}`);
