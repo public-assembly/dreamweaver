@@ -1,33 +1,22 @@
 import { client } from './viem';
 import type { Hex } from 'viem';
 import { getLastCheckedBlock, updateLastCheckedBlock } from './lastBlockCheck';
-import Bundlr from '@bundlr-network/client';
 import { ERC721PressFactoryAbi, CurationDatabaseV1Abi } from './abi';
 import { SEPOLIA_ADDRESSES } from './contractAddresses/addresses';
-
-
-type EthereumAddress = Hex;
+import { bundlr } from './bundlrInstance';
 
 // Constants
 const ERC721PFABI = ERC721PressFactoryAbi;
-const ERC721_PRESS_FACTORY_ADDRESS = SEPOLIA_ADDRESSES.ERC721.ERC721_PRESS_FACTORY_PROXY as EthereumAddress;
+const ERC721_PRESS_FACTORY_ADDRESS = SEPOLIA_ADDRESSES.ERC721.ERC721_PRESS_FACTORY_PROXY as Hex;
 const CREATE_PRESS_EVENT = 'Create721Press';
-const CURATION_DATABASE_ADDRESS = SEPOLIA_ADDRESSES.ERC721.CURATION_DATABASE_V1 as EthereumAddress; 
+const CURATION_DATABASE_ADDRESS = SEPOLIA_ADDRESSES.ERC721.CURATION_DATABASE_V1 as Hex; 
 const CURATION_V1_ABI = CurationDatabaseV1Abi; 
 const DATA_STORED_EVENT = 'DataStored';
 const RENDER_UPDATED_EVENT = 'RendererUpdated';
 const LOGIC_UPDATED_EVENT = 'LogicUpdated';
 const PRESS_INITIALIZED_EVENT = 'PressInitialized';
 
-// Initialize Bundlr
-const bundlr = new Bundlr(
-  'http://devnet.bundlr.network',
-  'ethereum',
-  process.env.PRIVATE_KEY,
-  {
-    providerUrl: `https://eth-sepolia.g.alchemy.com/v2/${process.env.SEPOLIA_RPC_URL}`,
-  }
-);
+
 
 const replacer = (key: string, value: any) => {
   if (typeof value === 'bigint') {
@@ -142,5 +131,5 @@ export async function getPressCreationEvents() {
   return logsJson;
 }
 
-console.log('Starting to fetch press creation events...');
+console.log('Fetching press creation events...');
 getPressCreationEvents();
