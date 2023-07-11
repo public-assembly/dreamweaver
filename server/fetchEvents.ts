@@ -129,7 +129,7 @@ return logs.flat();
 
 async function uploadLog(log: any, eventName: string) {
   requestCounter++;
-  console.log(`Request count: ${requestCounter}`);
+  console.log(`Request count from uploadLog: ${requestCounter}`);
   const tags = createBundlrTags(eventName);
 
   const response = await bundlr.upload(JSON.stringify(log, replacer, 2), { tags });
@@ -187,16 +187,18 @@ export async function getPressCreationEvents() {
 
   while (fromBlock <= currentBlock) {
     // const toBlock = fromBlock + BigInt(1);
+
     // log every 100th block 
     const toBlock = fromBlock + BigInt(100 ) > currentBlock ? currentBlock : fromBlock + BigInt(100);
 
     // const logs = await fetchLogs(fromBlock, toBlock, eventObjects);
+
     const logs = await withTimeout(
       fetchLogs(fromBlock, toBlock, eventObjects),
       5000,  // Timeout after 5000 milliseconds (5 seconds)
       `fetchLogs timed out for blocks ${fromBlock} to ${toBlock}`
     );
-    
+
     requestCount += 1; 
     console.log(`Request count: ${requestCount}`)
     
