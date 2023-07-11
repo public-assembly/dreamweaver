@@ -1,45 +1,24 @@
 export const ERC721PressFactoryAbi = [
   {
-    inputs: [{ internalType: 'address', name: '_pressImpl', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_pressImpl',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_databaseImpl',
+        type: 'address',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'constructor',
   },
-  { inputs: [], name: 'Address_Cannot_Be_Zero', type: 'error' },
-  { inputs: [], name: 'NOT_EITHER_OWNER', type: 'error' },
-  { inputs: [], name: 'ONLY_OWNER', type: 'error' },
-  { inputs: [], name: 'ONLY_PENDING_OWNER', type: 'error' },
-  { inputs: [], name: 'OWNER_CANNOT_BE_ZERO_ADDRESS', type: 'error' },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'previousAdmin',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'newAdmin',
-        type: 'address',
-      },
-    ],
-    name: 'AdminChanged',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'beacon',
-        type: 'address',
-      },
-    ],
-    name: 'BeaconUpgraded',
-    type: 'event',
+    inputs: [],
+    name: 'Address_Cannot_Be_Zero',
+    type: 'error',
   },
   {
     anonymous: false,
@@ -51,30 +30,34 @@ export const ERC721PressFactoryAbi = [
         type: 'address',
       },
       {
-        indexed: false,
-        internalType: 'address',
-        name: 'creator',
-        type: 'address',
-      },
-      {
         indexed: true,
         internalType: 'address',
-        name: 'initialOwner',
+        name: 'databaseImpl',
         type: 'address',
       },
       {
-        indexed: true,
-        internalType: 'address',
-        name: 'initialLogic',
-        type: 'address',
-      },
-      {
+        components: [
+          {
+            internalType: 'address payable',
+            name: 'fundsRecipient',
+            type: 'address',
+          },
+          {
+            internalType: 'uint16',
+            name: 'royaltyBPS',
+            type: 'uint16',
+          },
+          {
+            internalType: 'bool',
+            name: 'transferable',
+            type: 'bool',
+          },
+        ],
         indexed: false,
-        internalType: 'address',
-        name: 'initialRenderer',
-        type: 'address',
+        internalType: 'struct IERC721Press.Settings',
+        name: 'settings',
+        type: 'tuple',
       },
-      { indexed: false, internalType: 'bool', name: 'soulbound', type: 'bool' },
     ],
     name: 'Create721Press',
     type: 'event',
@@ -82,72 +65,14 @@ export const ERC721PressFactoryAbi = [
   {
     anonymous: false,
     inputs: [
-      { indexed: false, internalType: 'uint8', name: 'version', type: 'uint8' },
-    ],
-    name: 'Initialized',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
       {
         indexed: true,
         internalType: 'address',
-        name: 'owner',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'canceledOwner',
+        name: 'databaseImpl',
         type: 'address',
       },
     ],
-    name: 'OwnerCanceled',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'owner',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'pendingOwner',
-        type: 'address',
-      },
-    ],
-    name: 'OwnerPending',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'prevOwner',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'newOwner',
-        type: 'address',
-      },
-    ],
-    name: 'OwnerUpdated',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [],
-    name: 'PressFactoryInitialized',
+    name: 'DatabaseImplementationSet',
     type: 'event',
   },
   {
@@ -164,76 +89,40 @@ export const ERC721PressFactoryAbi = [
     type: 'event',
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'prevSecondaryOwner',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'newSecondaryOwner',
-        type: 'address',
-      },
-    ],
-    name: 'SecondaryOwnerUpdated',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'implementation',
-        type: 'address',
-      },
-    ],
-    name: 'Upgraded',
-    type: 'event',
-  },
-  {
-    inputs: [],
-    name: 'acceptOwnership',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'cancelOwnershipTransfer',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
     inputs: [],
     name: 'contractVersion',
-    outputs: [{ internalType: 'uint32', name: '', type: 'uint32' }],
+    outputs: [
+      {
+        internalType: 'uint32',
+        name: '',
+        type: 'uint32',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'string', name: 'name', type: 'string' },
-      { internalType: 'string', name: 'symbol', type: 'string' },
-      { internalType: 'address', name: 'initialOwner', type: 'address' },
       {
-        internalType: 'contract IERC721PressLogic',
-        name: 'logic',
+        internalType: 'string',
+        name: 'name',
+        type: 'string',
+      },
+      {
+        internalType: 'string',
+        name: 'symbol',
+        type: 'string',
+      },
+      {
+        internalType: 'address',
+        name: 'initialOwner',
         type: 'address',
       },
-      { internalType: 'bytes', name: 'logicInit', type: 'bytes' },
       {
-        internalType: 'contract IERC721PressRenderer',
-        name: 'renderer',
-        type: 'address',
+        internalType: 'bytes',
+        name: 'databaseInit',
+        type: 'bytes',
       },
-      { internalType: 'bytes', name: 'rendererInit', type: 'bytes' },
-      { internalType: 'bool', name: 'soulbound', type: 'bool' },
       {
         components: [
           {
@@ -242,127 +131,56 @@ export const ERC721PressFactoryAbi = [
             type: 'address',
           },
           {
-            internalType: 'address payable',
-            name: 'primarySaleFeeRecipient',
-            type: 'address',
+            internalType: 'uint16',
+            name: 'royaltyBPS',
+            type: 'uint16',
           },
-          { internalType: 'uint64', name: 'maxSupply', type: 'uint64' },
-          { internalType: 'uint16', name: 'royaltyBPS', type: 'uint16' },
-          { internalType: 'uint16', name: 'primarySaleFeeBPS', type: 'uint16' },
+          {
+            internalType: 'bool',
+            name: 'transferable',
+            type: 'bool',
+          },
         ],
-        internalType: 'struct IERC721Press.Configuration',
-        name: 'configuration',
+        internalType: 'struct IERC721Press.Settings',
+        name: 'settings',
         type: 'tuple',
       },
     ],
     name: 'createPress',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      { internalType: 'address', name: '_initialOwner', type: 'address' },
+    outputs: [
       {
         internalType: 'address',
-        name: '_initialSecondaryOwner',
+        name: 'press',
         type: 'address',
       },
     ],
-    name: 'initialize',
-    outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
     inputs: [],
-    name: 'owner',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'pendingOwner',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    name: 'databaseImpl',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'pressImpl',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'proxiableUUID',
-    outputs: [{ internalType: 'bytes32', name: '', type: 'bytes32' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'resignOwnership',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'resignSecondaryOwnership',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'address', name: '_newOwner', type: 'address' }],
-    name: 'safeTransferOwnership',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'secondaryOwner',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'address', name: '_newOwner', type: 'address' }],
-    name: 'transferOwnership',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      { internalType: 'address', name: '_newSecondaryOwner', type: 'address' },
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
     ],
-    name: 'transferSecondaryOwnership',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      { internalType: 'address', name: 'newImplementation', type: 'address' },
-    ],
-    name: 'upgradeTo',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      { internalType: 'address', name: 'newImplementation', type: 'address' },
-      { internalType: 'bytes', name: 'data', type: 'bytes' },
-    ],
-    name: 'upgradeToAndCall',
-    outputs: [],
-    stateMutability: 'payable',
+    stateMutability: 'view',
     type: 'function',
   },
 ] as const;
