@@ -2,7 +2,7 @@
 import Bundlr from '@bundlr-network/client';
 import * as fs from 'fs';
 import 'dotenv/config';
-import { getPressCreationEvents } from './fetchEvents';
+import { getEvents} from './fetchEvents';
 
 async function main() {
   // Set up a reference to a bundlr object
@@ -24,7 +24,7 @@ async function main() {
 
   console.log('Account balance:', convertedBalance);
 
-  const logsJson = await getPressCreationEvents();
+  const logsJson = await getEvents();
 
   // If there are no new logs, don't upload anything
   if (logsJson === '{}') {
