@@ -47,30 +47,89 @@ type EventObject = {
   address: Hex
 }
 
+// request counter
+let requestCounter = 0;
+
 async function fetchLogs(fromBlock: bigint, toBlock: bigint, eventObjects: EventObject[]) {
+  // ORIGINAL
+  // const filters = await Promise.all(
+  //   eventObjects.map((eventObject) => client.createContractEventFilter({
+  //     abi: eventObject.abi,
+  //     address: eventObject.address,
+  //     eventName: eventObject.event,
+  //     fromBlock: BigInt(fromBlock),
+  //     toBlock: BigInt(toBlock),
+  //   }))
+  // );
+
+  // TEMP COUNT CHECK //
+
   const filters = await Promise.all(
-    eventObjects.map((eventObject) => client.createContractEventFilter({
-      abi: eventObject.abi,
-      address: eventObject.address,
-      eventName: eventObject.event,
-      fromBlock: BigInt(fromBlock),
-      toBlock: BigInt(toBlock),
-    }))
+    eventObjects.map((eventObject) => {
+      requestCounter++;
+      console.log(`Request count: ${requestCounter}`);
+      return client.createContractEventFilter({
+        abi: eventObject.abi,
+        address: eventObject.address,
+        eventName: eventObject.event,
+        fromBlock: BigInt(fromBlock),
+        toBlock: BigInt(toBlock),
+      });
+    })
   );
+
 
   console.log(`Filter created for blocks ${fromBlock} to ${toBlock}, getting logs...`);
 
-  // Return a list of event logs since the filter was created
-  const logs = await Promise.all(
-    filters.map((filter, index) => 
-      client.getFilterLogs({ filter: filter as any })
-        .then(logs => logs.map(log => ({ ...log, eventName: eventObjects[index].event }))))
-  );
+  // Return a list of event logs since the filter was created. ORIGINAL
+//   const logs = await Promise.all(
+//     filters.map((filter, index) => 
+//       client.getFilterLogs({ filter: filter as any })
+//         .then(logs => logs.map(log => ({ ...log, eventName: eventObjects[index].event }))))
+//   );
 
-  return logs.flat();
+//   return logs.flat();
+// }
+
+// TEMP COUNT CHECK //
+
+const logs = await Promise.all(
+  filters.map((filter, index) => {
+    requestCounter++;
+    console.log(`Request count: ${requestCounter}`);
+    return client.getFilterLogs({ filter: filter as any })
+      .then(logs => logs.map(log => ({ ...log, eventName: eventObjects[index].event })));
+  })
+);
+
+return logs.flat();
 }
 
+// ORIGINAL 
+
+// async function uploadLog(log: any, eventName: string) {
+//   const tags = createBundlrTags(eventName);
+
+//   const response = await bundlr.upload(JSON.stringify(log, replacer, 2), { tags });
+
+//   console.log(`Uploaded log: https://arweave.net/${response.id}`);
+//   return log;
+// }
+
+// async function uploadLogsGrouped(logs: any[], eventName: string) {
+//   const tags = createBundlrTags(eventName);
+
+//   const response = await bundlr.upload(JSON.stringify(logs, replacer, 2), { tags });
+
+//   console.log(`Uploaded logs: https://arweave.net/${response.id}`);
+//   return logs;
+// }
+
+// TEMPORARY
+
 async function uploadLog(log: any, eventName: string) {
+  requestCounter++;
+  console.log(`Request count: ${requestCounter}`);
   const tags = createBundlrTags(eventName);
 
   const response = await bundlr.upload(JSON.stringify(log, replacer, 2), { tags });
@@ -80,6 +139,8 @@ async function uploadLog(log: any, eventName: string) {
 }
 
 async function uploadLogsGrouped(logs: any[], eventName: string) {
+  requestCounter++;
+  console.log(`Request count: ${requestCounter}`);
   const tags = createBundlrTags(eventName);
 
   const response = await bundlr.upload(JSON.stringify(logs, replacer, 2), { tags });
@@ -104,11 +165,40 @@ export async function getPressCreationEvents() {
     { event: LOGIC_UPDATED_EVENT, abi: CURATION_V1_ABI, address: CURATION_DATABASE_ADDRESS },
     { event: PRESS_INITIALIZED_EVENT, abi: CURATION_V1_ABI, address: CURATION_DATABASE_ADDRESS },
 ];
+  // new request count 
+  let requestCount = 0; 
+
+  // TIMEOUT DEBUG
+
+  function withTimeout<T>(promise: Promise<T>, timeoutMs: number, timeoutMessage: string): Promise<T> {
+    let timeoutId: NodeJS.Timeout;
+    const timeoutPromise = new Promise<T>((_, reject) => {
+      timeoutId = setTimeout(() => reject(new Error(timeoutMessage)), timeoutMs);
+    });
+  
+    return Promise.race([
+      promise.then(result => {
+        clearTimeout(timeoutId);
+        return result;
+      }),
+      timeoutPromise
+    ]);
+  }
 
   while (fromBlock <= currentBlock) {
-    const toBlock = fromBlock + BigInt(1);
+    // const toBlock = fromBlock + BigInt(1);
+    // log every 100th block 
+    const toBlock = fromBlock + BigInt(100 ) > currentBlock ? currentBlock : fromBlock + BigInt(100);
 
-    const logs = await fetchLogs(fromBlock, toBlock, eventObjects);
+    // const logs = await fetchLogs(fromBlock, toBlock, eventObjects);
+    const logs = await withTimeout(
+      fetchLogs(fromBlock, toBlock, eventObjects),
+      5000,  // Timeout after 5000 milliseconds (5 seconds)
+      `fetchLogs timed out for blocks ${fromBlock} to ${toBlock}`
+    );
+    
+    requestCount += 1; 
+    console.log(`Request count: ${requestCount}`)
     
     // Separate CreatePress logs and other logs
     const createPressLogs = logs.filter(log => log.eventName === CREATE_PRESS_EVENT);
