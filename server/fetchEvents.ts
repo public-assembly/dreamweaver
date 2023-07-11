@@ -1,80 +1,51 @@
 import { client } from './viem';
-import type { Hex } from 'viem';
+import { Hex, Abi } from 'viem';
 import { getLastCheckedBlock, updateLastCheckedBlock } from './lastBlockCheck';
 import { ERC721PressFactoryAbi, CurationDatabaseV1Abi } from './abi';
-import { SEPOLIA_ADDRESSES } from './contractAddresses/addresses';
-import { bundlr } from './bundlrInstance';
-
-// Constants
-const ERC721PFABI = ERC721PressFactoryAbi;
-const ERC721_PRESS_FACTORY_ADDRESS = SEPOLIA_ADDRESSES.ERC721.ERC721_PRESS_FACTORY_PROXY as Hex;
-const CREATE_PRESS_EVENT = 'Create721Press';
-const CURATION_DATABASE_ADDRESS = SEPOLIA_ADDRESSES.ERC721.CURATION_DATABASE_V1 as Hex; 
-const CURATION_V1_ABI = CurationDatabaseV1Abi; 
-const DATA_STORED_EVENT = 'DataStored';
-const RENDER_UPDATED_EVENT = 'RendererUpdated';
-const LOGIC_UPDATED_EVENT = 'LogicUpdated';
-const PRESS_INITIALIZED_EVENT = 'PressInitialized';
-
-
-
-const replacer = (key: string, value: any) => {
-  if (typeof value === 'bigint') {
-    return value.toString();
-  }
-  return value;
-};
-
-const createBundlrTags = (eventName: string) => [
-    { name: 'Content-Type', value: 'application/json' },
-    { name: 'Press Events', value: eventName },
-];
+import { sepolia, events } from './constants';
+import { uploadLog, uploadLogs } from './bundlrActions';
+import { replacer } from './utils';
 
 type EventObject = {
-  event: string,
-  abi: any,
-  address: Hex
-}
+  event: string;
+  abi: Abi;
+  address: Hex;
+};
 
-async function fetchLogs(fromBlock: bigint, toBlock: bigint, eventObjects: EventObject[]) {
+async function fetchLogs(
+  fromBlock: bigint,
+  toBlock: bigint,
+  eventObjects: EventObject[]
+) {
   const filters = await Promise.all(
-    eventObjects.map((eventObject) => client.createContractEventFilter({
-      abi: eventObject.abi,
-      address: eventObject.address,
-      eventName: eventObject.event,
-      fromBlock: BigInt(fromBlock),
-      toBlock: BigInt(toBlock),
-    }))
+    eventObjects.map((eventObject) =>
+      client.createContractEventFilter({
+        abi: eventObject.abi,
+        address: eventObject.address,
+        eventName: eventObject.event,
+        fromBlock: BigInt(fromBlock),
+        toBlock: BigInt(toBlock),
+      })
+    )
   );
 
-  console.log(`Filter created for blocks ${fromBlock} to ${toBlock}, getting logs...`);
+  console.log(
+    `Filter created for blocks ${fromBlock} to ${toBlock}, getting logs...`
+  );
 
   // Return a list of event logs since the filter was created
   const logs = await Promise.all(
-    filters.map((filter, index) => 
-      client.getFilterLogs({ filter: filter as any })
-        .then(logs => logs.map(log => ({ ...log, eventName: eventObjects[index].event }))))
+    filters.map((filter, index) =>
+      client
+        // TODO: type this as `Filter` once viem as been updated to export that type
+        .getFilterLogs({ filter: filter as any })
+        .then((logs) =>
+          logs.map((log) => ({ ...log, eventName: eventObjects[index].event }))
+        )
+    )
   );
 
   return logs.flat();
-}
-
-async function uploadLog(log: any, eventName: string) {
-  const tags = createBundlrTags(eventName);
-
-  const response = await bundlr.upload(JSON.stringify(log, replacer, 2), { tags });
-
-  console.log(`Uploaded log: https://arweave.net/${response.id}`);
-  return log;
-}
-
-async function uploadLogsGrouped(logs: any[], eventName: string) {
-  const tags = createBundlrTags(eventName);
-
-  const response = await bundlr.upload(JSON.stringify(logs, replacer, 2), { tags });
-
-  console.log(`Uploaded logs: https://arweave.net/${response.id}`);
-  return logs;
 }
 
 export async function getPressCreationEvents() {
@@ -87,29 +58,57 @@ export async function getPressCreationEvents() {
   const allLogs = [];
 
   const eventObjects: EventObject[] = [
-    { event: CREATE_PRESS_EVENT, abi: ERC721PFABI, address: ERC721_PRESS_FACTORY_ADDRESS },
-    { event: DATA_STORED_EVENT, abi: CURATION_V1_ABI, address: CURATION_DATABASE_ADDRESS },
-    { event: RENDER_UPDATED_EVENT, abi: CURATION_V1_ABI, address: CURATION_DATABASE_ADDRESS },
-    { event: LOGIC_UPDATED_EVENT, abi: CURATION_V1_ABI, address: CURATION_DATABASE_ADDRESS },
-    { event: PRESS_INITIALIZED_EVENT, abi: CURATION_V1_ABI, address: CURATION_DATABASE_ADDRESS },
-];
+    {
+      event: events.CREATE_PRESS,
+      abi: ERC721PressFactoryAbi,
+      address: sepolia.ERC721_PRESS_FACTORY,
+    },
+    {
+      event: events.DATA_STORED,
+      abi: CurationDatabaseV1Abi,
+      address: sepolia.CURATION_DATABASE_V1,
+    },
+    {
+      event: events.RENDERER_UPDATED,
+      abi: CurationDatabaseV1Abi,
+      address: sepolia.CURATION_DATABASE_V1,
+    },
+    {
+      event: events.LOGIC_UPDATED,
+      abi: CurationDatabaseV1Abi,
+      address: sepolia.CURATION_DATABASE_V1,
+    },
+    {
+      event: events.PRESS_INITIALIZED,
+      abi: CurationDatabaseV1Abi,
+      address: sepolia.CURATION_DATABASE_V1,
+    },
+  ];
 
   while (fromBlock <= currentBlock) {
     const toBlock = fromBlock + BigInt(1);
 
     const logs = await fetchLogs(fromBlock, toBlock, eventObjects);
-    
+
     // Separate CreatePress logs and other logs
-    const createPressLogs = logs.filter(log => log.eventName === CREATE_PRESS_EVENT);
-    const otherLogs = logs.filter(log => log.eventName !== CREATE_PRESS_EVENT);
+    const createPressLogs = logs.filter(
+      (log) => log.eventName === events.CREATE_PRESS
+    );
+    const otherLogs = logs.filter(
+      (log) => log.eventName !== events.CREATE_PRESS
+    );
 
     // Upload CreatePress logs one by one
-    const uploadCreatePressPromises = createPressLogs.map(log => uploadLog(log, log.eventName));
-    const uploadedCreatePressLogs = await Promise.all(uploadCreatePressPromises);
+    const uploadCreatePressPromises = createPressLogs.map((log) =>
+      uploadLog(log, log.eventName)
+    );
+    const uploadedCreatePressLogs = await Promise.all(
+      uploadCreatePressPromises
+    );
 
     // Upload other logs in one receipt
     if (otherLogs.length > 0) {
-      const uploadReceipt = await uploadLogsGrouped(otherLogs, 'Combined Receipt');
+      const uploadReceipt = await uploadLogs(otherLogs, 'Combined Receipt');
       allLogs.push(uploadReceipt);
     }
 
@@ -132,4 +131,5 @@ export async function getPressCreationEvents() {
 }
 
 console.log('Fetching press creation events...');
+
 getPressCreationEvents();
