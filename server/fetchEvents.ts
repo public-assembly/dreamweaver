@@ -5,6 +5,7 @@ import { ERC721PressFactoryAbi, CurationDatabaseV1Abi } from './abi';
 import { sepolia, events } from './constants';
 import { replacer } from './utils';
 
+
 type EventObject = {
   event: string;
   abi: Abi;
