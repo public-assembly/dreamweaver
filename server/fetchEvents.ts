@@ -6,7 +6,6 @@ import { sepolia, events } from './constants';
 import { uploadLogs } from './bundlrActions';
 import { replacer } from './utils';
 
-
 type EventObject = {
   event: string,
   abi: Abi,
