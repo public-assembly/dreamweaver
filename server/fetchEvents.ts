@@ -6,9 +6,10 @@ import { sepolia, events } from './constants';
 import { uploadLogs } from './bundlrActions';
 import { replacer } from './utils';
 
+
 type EventObject = {
   event: string,
-  abi: any,
+  abi: Abi,
   address: Hex
 }
 
