@@ -6,8 +6,8 @@ import { sepolia, events } from './constants';
 import { replacer } from './utils';
 
 type EventObject = {
-  event: string,
-  abi: Abi,
+  event: string;
+  abi: Abi;
   address: Hex
 }
 
