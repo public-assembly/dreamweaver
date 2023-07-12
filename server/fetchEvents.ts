@@ -3,7 +3,6 @@ import type { Hex, Abi } from 'viem';
 import { getLastCheckedBlock, updateLastCheckedBlock } from './lastBlockCheck';
 import { ERC721PressFactoryAbi, CurationDatabaseV1Abi } from './abi';
 import { sepolia, events } from './constants';
-import { uploadLogs } from './bundlrActions';
 import { replacer } from './utils';
 
 type EventObject = {
@@ -105,7 +104,8 @@ export async function getEvents() {
 
   const logsJson = JSON.stringify(allLogs, replacer, 2);
   console.log('Returning logs...');
-  return logsJson;
+  // return logsJson;
+  return { logsJson, eventName: eventObjects[0].event };
 }
 
 console.log('Starting to fetch events...');

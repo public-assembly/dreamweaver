@@ -13,45 +13,12 @@ export const bundlr = new Bundlr(
 );
 
 // Metadata for Bundlr uploads
-const createBundlrTags = (eventName: string) => [
+export const createBundlrTags = (eventName: string) => [
   { name: 'Content-Type', value: 'application/json' },
   { name: 'Press Events', value: eventName },
 ];
 
-// // Uploads a single log to Arweave
-// export async function uploadLog(log: Log, eventName: string) {
-//   const tags = createBundlrTags(eventName);
-
-//   const response = await bundlr.upload(JSON.stringify(log, replacer, 2), {
-//     tags,
-//   });
-
-//   console.log(`Uploaded log: https://arweave.net/${response.id}`);
-//   return log;
-// }
-
-// // Uploads an array of logs to Arweave
-// export async function uploadLogs(logs: Log[], eventName: string) {
-//   const tags = createBundlrTags(eventName);
-
-//   const response = await bundlr.upload(JSON.stringify(logs, replacer, 2), {
-//     tags,
-//   });
-
-//   console.log(`Uploaded logs: https://arweave.net/${response.id}`);
-//   return logs;
-// }
-
-// export async function uploadLogsGrouped(logs: any[], eventName: string) {
-//     const tags = createBundlrTags(eventName);
-  
-//     const response = await bundlr.upload(JSON.stringify(logs, replacer, 2), { tags });
-  
-//     console.log(`Uploaded logs: https://arweave.net/${response.id}`);
-//     return logs;
-//   }
-
-// Uploads an array of logs to Arweave
+// Uploads an array of logs to Arweave. 
 export async function uploadLogs(logs: Log[], eventName: string) {
     const tags = createBundlrTags(eventName);
   
