@@ -31,7 +31,9 @@ async function fetchLogs(
 
   const logs = await Promise.all(
     filters.map((filter, index) => 
-      client.getFilterLogs({ filter: filter as any })
+      client
+      // TODO: type this as 'Filter' once viem has been updated to export that type
+        .getFilterLogs({ filter: filter as any })
         .then(logs => logs.map(log => ({ ...log, eventName: eventObjects[index].event }))))
   );
 
