@@ -110,3 +110,13 @@ export async function getLastBlock(eventName: string) {
   
     return blockNumber;
   }
+
+  export async function uploadLogsObject(logsObject: { ToBlock: string, FromBlock: string, Logs: Log[] }, eventName: string) {
+    // Extract the Logs property from the logsObject
+    const { Logs } = logsObject;
+  
+    // Call uploadLogs with the Logs array
+    const response = await uploadLogs(Logs, eventName);
+  
+    return response;
+  }

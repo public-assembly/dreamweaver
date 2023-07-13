@@ -1,6 +1,6 @@
-import { client } from './viem';
-import type { Hex, Abi } from 'viem';
-import { getLastBlock, uploadLogs } from './bundlrActions'
+import { client} from './viem';
+import type { Hex, Abi, Log } from 'viem';
+import { getLastBlock, uploadLogs, uploadLogsObject } from './bundlrActions'
 import { ERC721PressFactoryAbi, CurationDatabaseV1Abi } from './abi';
 import { sepolia, events } from './constants';
 import { replacer } from './utils';
@@ -86,8 +86,10 @@ export async function getEvents() {
   const currentBlock = await client.getBlockNumber();
   console.log(`Current block number is ${currentBlock}`);
 
+
   const eventName = eventObjects[eventObjects.length - 1].event; // Use the last event
   let fromBlock = await getLastBlock(eventName);
+
   console.log(`event: ${eventName}`)
   
   if (fromBlock === null) {
@@ -99,6 +101,7 @@ export async function getEvents() {
     let toBlock: bigint = fromBlock + BigInt(10000) > currentBlock ? currentBlock : fromBlock + BigInt(10000);
   
     const logs = await fetchLogs(fromBlock, toBlock, eventObjects);
+    console.log(`Fetched ${logs.length} logs from block ${fromBlock} to ${toBlock}`);
     if (logs.length > 0) {
       allLogs.push(...logs);
     }
@@ -110,12 +113,32 @@ export async function getEvents() {
     console.log('No logs to return.');
     return '{}';
   }
+  
+// ORIGINAL
+//   const logsJson = JSON.stringify(allLogs, replacer, 2);
+//   console.log('Returning logs...')
+  
+  
+//   // Upload all logs at once
+//   const response = await uploadLogs(allLogs, eventObjects[0].event);
+  
+//   return { logsJson, eventName: eventObjects[0].event };
+// }
 
-  const logsJson = JSON.stringify(allLogs, replacer, 2);
-  console.log('Returning logs...');
-  
-  // Upload all logs at once
-  const response = await uploadLogs(allLogs, eventObjects[0].event);
-  
-  return { logsJson, eventName: eventObjects[0].event };
+
+// Create a new object with ToBlock, FromBlock and Logs
+
+const logsObject = {
+  FromBlock: fromBlock.toString(),
+  ToBlock: currentBlock.toString(),
+  Logs: allLogs
+};
+
+const logsJson = JSON.stringify(logsObject, replacer, 2);
+console.log('Returning logs...')
+
+// Upload all logs at once
+const response = await uploadLogsObject(logsObject, eventObjects[0].event);
+
+return { logsJson, eventName: eventObjects[0].event };
 }

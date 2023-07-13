@@ -35,9 +35,11 @@ async function main() {
 
   // start parse
   
-  // Parse logsJson into an array of log objects
-  const logs = JSON.parse(result.logsJson);
+// Parse logsJson into an array of log objects
+const logs = JSON.parse(result.logsJson);
 
+// Check if logs array is not empty
+if (logs.length > 0) {
   // Get the last log from the array
   const lastLog = logs[logs.length - 1];
 
@@ -48,7 +50,8 @@ async function main() {
   let fromBlock = BigInt(blockNumber) + BigInt(1);
 
   console.log('Next fromBlock:', fromBlock);
+} else {
+  console.log('No logs were fetched.');
 }
-
-main();
-
+}
+main(); 
