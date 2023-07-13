@@ -2,7 +2,7 @@ import Bundlr from '@bundlr-network/client';
 import * as fs from 'fs';
 import 'dotenv/config';
 import { getEvents } from './fetchEvents';
-import { createBundlrTags } from './bundlrActions';
+import { createBundlrTags, getLastBlock } from './bundlrActions';
 
 async function main() {
   // Set up a reference to a bundlr object
@@ -30,18 +30,8 @@ async function main() {
     console.log('No new logs to upload.');
     return;
   }
-// USES BUNDLR TAGS 
-  const { logsJson, eventName } = result;
 
-  const tags = createBundlrTags(eventName);
-  const response = await bundlr.upload(logsJson, { tags });
+  console.log('Starting to fetch press creation events...');
 
-  console.log(`Transaction hash ==> https://arweave.net/${response.id}`);
-
-  const pathToData = `https://arweave.net/${response.id}`;
-
-  return pathToData;
 }
-
-console.log('Starting to fetch press creation events...');
 main();
