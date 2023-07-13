@@ -33,5 +33,22 @@ async function main() {
 
   console.log('Starting to fetch press creation events...');
 
+  // start parse
+  
+  // Parse logsJson into an array of log objects
+  const logs = JSON.parse(result.logsJson);
+
+  // Get the last log from the array
+  const lastLog = logs[logs.length - 1];
+
+  // Extract the responseId and blockNumber properties
+  const blockNumber = lastLog.blockNumber;
+
+  // Assign the blockNumber to fromBlock for the next execution
+  let fromBlock = BigInt(blockNumber) + BigInt(1);
+
+  console.log('Next fromBlock:', fromBlock);
 }
+
 main();
+

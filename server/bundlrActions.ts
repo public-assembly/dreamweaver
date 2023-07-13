@@ -66,16 +66,20 @@ export async function getLastBlock(eventName: string) {
     console.log(`eventName: ${eventName}`)
     
     const query = gql`
-      query {
+    query {
         transactions(
+          owners: ["0x6fF78174FD667fD21d82eE047d38dc15b5440d71"]
           tags: [
             { name: "Content-Type", values: ["application/json"] }
-            { name: "Press Events", values: ["${eventName}"] }
+            { name: "Press Events", values: ["RendererUpdated"] }
           ]
+          order: DESC
+          limit: 1
         ) {
           edges {
             node {
               id
+              address
               tags {
                 name
                 value
