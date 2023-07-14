@@ -3,6 +3,7 @@ import { replacer } from './utils';
 import { Log } from 'viem';
 import ApolloClient from 'apollo-boost';
 import gql from 'graphql-tag';
+import { Tag, Node, Edge, Transactions, GraphQLResponse } from './types/index';
 
 // initialize pollo client to interact with bundlr's graphql api
 const client = new ApolloClient({
@@ -38,29 +39,6 @@ export async function uploadLogs(logs: Log[], eventName: string) {
     return response;
   }
 
-// type definition
-
-interface Tag {
-    name: string;
-    value: string;
-  }
-  
-  interface Node {
-    id: string;
-    tags: Tag[];
-  }
-  
-  interface Edge {
-    node: Node;
-  }
-  
-  interface Transactions {
-    edges: Edge[];
-  }
-  
-  interface GraphQLResponse {
-    transactions: Transactions;
-  }
 
 //  gets block number of the last event with a given name 
 export async function getLastBlock(eventName: string) {
@@ -73,7 +51,7 @@ export async function getLastBlock(eventName: string) {
           owners: ["0x6fF78174FD667fD21d82eE047d38dc15b5440d71"]
           tags: [
             { name: "Content-Type", values: ["application/json"] }
-            { name: "Press Events", values: ["${eventName}] }
+            { name: "Press Events", values: ["${eventName}"] }
           ]
           order: DESC
           limit: 1

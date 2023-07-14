@@ -33,6 +33,7 @@ async function fetchLogs(
 
   console.log(`Filter created for blocks ${fromBlock} to ${toBlock}, getting logs...`);
 
+
 // fetch logs for each filter
   const logs = await Promise.all(
     filters.map((filter, index) => 

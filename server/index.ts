@@ -1,20 +1,9 @@
-import Bundlr from '@bundlr-network/client';
-import * as fs from 'fs';
 import 'dotenv/config';
 import { getEvents } from './fetchEvents';
-import { createBundlrTags, getLastBlock } from './bundlrActions';
+import {bundlr} from './bundlrInit'
 
 async function main() {
-  // initialize bundlr. do we need this twice? 
-  const bundlr = new Bundlr(
-    'http://devnet.bundlr.network',
-    'ethereum',
-    process.env.PRIVATE_KEY,
-    {
-  // rpc url
-      providerUrl: `https://eth-sepolia.g.alchemy.com/v2/${process.env.SEPOLIA_RPC_URL}`,
-    }
-  );
+
 // print the eth wallet addres connected to the bundlr client
   console.log('Connected wallet address:', bundlr.address);
 
