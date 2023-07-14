@@ -13,6 +13,8 @@ model User {
   name  String?
 }
 
+// a transaction model that maps to a database table. This will be a blueprint for 'Transaction' entries in your PostgreSQL database.
+
 model Transaction {
   id        String @id
   address   String

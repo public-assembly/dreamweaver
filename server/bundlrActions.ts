@@ -4,12 +4,12 @@ import { Log } from 'viem';
 import ApolloClient from 'apollo-boost';
 import gql from 'graphql-tag';
 
-// initialize apollo 
+// initialize pollo client to interact with bundlr's graphql api
 const client = new ApolloClient({
     uri: 'https://devnet.bundlr.network/graphql',
 });
 
-// Initialize Bundlr
+// initialize bundlr
 export const bundlr = new Bundlr(
   'http://devnet.bundlr.network',
   'ethereum',
@@ -19,25 +19,26 @@ export const bundlr = new Bundlr(
   }
 );
 
-// Metadata for Bundlr uploads
+// creates metadata tags for Bundlr uploads that will help us identify our uploads in our query later on
 export const createBundlrTags = (eventName: string) => [
   { name: 'Content-Type', value: 'application/json' },
   { name: 'Press Events', value: eventName },
 ];
 
-// Uploads an array of logs to Arweave. 
+// upload an array of logs to Arweave via Bundlr
 export async function uploadLogs(logs: Log[], eventName: string) {
     const tags = createBundlrTags(eventName);
   
+// upload logs as a stringified JSON
     const response = await bundlr.upload(JSON.stringify(logs, replacer, 2), {
       tags,
     });
-  
+// log the url of uploaded logs
     console.log(`Uploaded logs: https://arweave.net/${response.id}`);
     return response;
   }
 
-// FETCH lastBlock FROM LAST EVENT IN TRANSACTION HASH ID
+// type definition
 
 interface Tag {
     name: string;
@@ -61,17 +62,18 @@ interface Tag {
     transactions: Transactions;
   }
 
-// FETCH lastBlock FROM LAST EVENT IN TRANSACTION HASH ID
+//  gets block number of the last event with a given name 
 export async function getLastBlock(eventName: string) {
     console.log(`eventName: ${eventName}`)
     
+    // query to get the details of the last event with a given name .. this actually may not even be necessary TODO: check if we can get rid of this query. 
     const query = gql`
     query {
         transactions(
           owners: ["0x6fF78174FD667fD21d82eE047d38dc15b5440d71"]
           tags: [
             { name: "Content-Type", values: ["application/json"] }
-            { name: "Press Events", values: ["RendererUpdated"] }
+            { name: "Press Events", values: ["${eventName}] }
           ]
           order: DESC
           limit: 1
@@ -89,24 +91,36 @@ export async function getLastBlock(eventName: string) {
         }
       }
     `;
-  
+  // perform query
     const { data } = await client.query<GraphQLResponse>({ query });
     console.log("GraphQL Response: ", JSON.stringify(data, null, 2));
   
-    // If no transactions are found, return the hardcoded block number
+    // if no transactions are found, return the hardcoded block number
     if (data.transactions.edges.length === 0) {
       return BigInt(3570818);
     }
   
-    // Get the transaction ID of the last transaction that matches the tags
+    // get the transaction ID of the last transaction that matches the tags
     const transactionId = data.transactions.edges[data.transactions.edges.length - 1].node.id;
     
-    // Now use the transaction ID to fetch the transaction details from Arweave
+    // use the transaction ID to fetch the transaction details from Arweave
     const transactionData = await fetch(`https://arweave.net/${transactionId}`).then(response => response.json());
   
-    // Extract the block number from the last log in the transaction data
+    // extract the block number from the last log in the transaction data
     const blockNumber = transactionData ? BigInt(transactionData.blockNumber) : null;
     console.log("Block Number: ", blockNumber); // Debug line
   
     return blockNumber;
+  }
+
+// uploads logs given as an object
+  
+  export async function uploadLogsObject(logsObject: { ToBlock: string, FromBlock: string, Logs: Log[] }, eventName: string) {
+    // extract the Logs property from the logsObject
+    const { Logs } = logsObject;
+  
+    // call uploadLogs with the Logs array
+    const response = await uploadLogs(Logs, eventName);
+  
+    return response;
   }
