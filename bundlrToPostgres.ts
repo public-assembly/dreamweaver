@@ -1,58 +1,14 @@
 import { PrismaClient } from '@prisma/client';
-import gql from 'graphql-tag';
-import dotenv from 'dotenv';
-import { Node, Transactions } from './types/index';
-import { client } from './apolloClient';
+import { Node, Transactions } from './interfaces/transactionInterfaces';
+import { apolloClient } from './apolloClient';
+import { NEW_TRANSACTIONS } from './gql';
 
-// load .env .. actually not sure if i even need this 
-
-dotenv.config();
-
-// prisma initialization 
+// prisma initialization
 const prisma = new PrismaClient();
-
-// GraphQL query to get new transactions TODO: dont make owner hardcoded 
-const GET_NEW_TRANSACTIONS = gql`
-  query {
-    transactions(
-      owners: ["0x6fF78174FD667fD21d82eE047d38dc15b5440d71"]
-      tags: [
-        {
-          name: "Content-Type"
-          values: ["application/json"]
-        }
-        {
-          name: "Press Events"
-          values: [
-            "Create721Press"
-            "DataStored"
-            "DataRemoved"
-            "DataOverwritten"
-            "LogicUpdated"
-            "PressInitialized"
-            "RendererUpdated"
-          ]
-        }
-      ]
-      order: ASC
-    ) {
-      edges {
-        node {
-          id
-          address
-          tags {
-            name
-            value
-          }
-        }
-      }
-    }
-  }
-`;
 
 // define the main function that fetches and processes transactions
 async function main() {
-  const { data } = await client.query({ query: GET_NEW_TRANSACTIONS });
+  const { data } = await apolloClient.query({ query: NEW_TRANSACTIONS });
   const processedTransactions = processTransactions(data.transactions);
 
   // insert processedTransactions into the database using Prisma
@@ -67,29 +23,29 @@ async function main() {
 
 // function to process transactions: extracts the event type from the tags and calls the corresponding shaping function
 function processTransactions(transactions: Transactions) {
-    return transactions.edges.map((edge) => {
-      const eventTag = edge.node.tags.find((tag) => tag.name === 'Press Events');
-      if (!eventTag) {
+  return transactions.edges.map((edge) => {
+    const eventTag = edge.node.tags.find((tag) => tag.name === 'Press Events');
+    if (!eventTag) {
+      return null;
+    }
+    const eventType = eventTag.value;
+    const shapedData = shapeData(edge.node);
+    switch (eventType) {
+      case 'Create721Press':
+      case 'DataStored':
+      case 'DataRemoved':
+      case 'DataOverwritten':
+      case 'LogicUpdated':
+      case 'PressInitialized':
+      case 'RendererUpdated':
+        return shapedData;
+      default:
         return null;
-      }
-      const eventType = eventTag.value;
-      const shapedData = shapeData(edge.node);
-      switch (eventType) {
-        case 'Create721Press':
-        case 'DataStored':
-        case 'DataRemoved':
-        case 'DataOverwritten':
-        case 'LogicUpdated':
-        case 'PressInitialized':
-        case 'RendererUpdated':
-          return shapedData;
-        default:
-          return null;
-      }
-    });
-  }
+    }
+  });
+}
 
-// function to shape the data common to all transactions 
+// function to shape the data common to all transactions
 function shapeData(node: Node) {
   const tags = node.tags.reduce((acc, tag) => {
     acc[tag.name] = tag.value;
@@ -137,7 +93,7 @@ function shapeRendererUpdated(node: Node) {
 async function getTransactions() {
   const transactions = await prisma.transaction.findMany();
   console.log(transactions);
-  return transactions
+  return transactions;
 }
 
 // fetch and print all transactions from the database
@@ -145,7 +101,7 @@ getTransactions()
   .catch((e) => {
     throw e;
   })
-// disconnect
+  // disconnect
   .finally(async () => {
     await prisma.$disconnect();
   });
