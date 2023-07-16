@@ -1,19 +1,17 @@
-import 'dotenv/config';
-import { getEvents } from './fetchEvents';
-import {bundlr} from './bundlrInit'
+import { getEvents } from './fetch';
+import { bundlr } from './bundlr';
 
 async function main() {
-
-// print the eth wallet addres connected to the bundlr client
+  // print the eth wallet address connected to the bundlr client
   console.log('Connected wallet address:', bundlr.address);
 
-// print balance of connected wallet. notice its loaded balance so this is in case you've prefunded bundlr already
+  // print balance of connected wallet. notice its loaded balance so this is in case you've prefunded bundlr already
   const atomicBalance = await bundlr.getLoadedBalance();
   const convertedBalance = bundlr.utils.fromAtomic(atomicBalance).toString();
   console.log('Account balance:', convertedBalance);
-// fetch event logs from chain
+  // fetch event logs from chain
   const result = await getEvents();
-// if no logs return early
+  // if no logs return early
   if (typeof result === 'string') {
     console.log('No new logs to upload.');
     return;
@@ -22,7 +20,7 @@ async function main() {
   console.log('Starting to fetch press creation events...');
 
   // start parse. this is not working at the moment, we just get the value of where we should start next but need to fix this lowkey. help
-  
+
   // parse logsJson into an array of log objects
   const logs = JSON.parse(result.logsJson);
 
@@ -39,4 +37,3 @@ async function main() {
 }
 
 main();
-
