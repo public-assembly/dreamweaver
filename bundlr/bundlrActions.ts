@@ -3,6 +3,7 @@ import { bundlr } from './bundlrInit';
 import { apolloClient } from '../apolloClient';
 import { Log } from 'viem';
 import gql from 'graphql-tag';
+import 'dotenv/config';
 import { Tag, Node, Edge, Transactions, GraphQLResponse } from '../interfaces/transactionInterfaces';
 
 // creates metadata tags for Bundlr uploads that will help us identify our uploads in our query later on
@@ -28,11 +29,13 @@ export async function uploadLogs(logs: Log[], eventName: string) {
 export async function getLastBlock(eventName: string) {
   console.log(`eventName: ${eventName}`);
 
-  // query to get the details of the last event with a given name .. this actually may not even be necessary TODO: check if we can get rid of this query.
+const owner = process.env.OWNER;
+
+  // query to get the details of the last event with a given name
   const query = gql`
     query {
         transactions(
-          owners: ["0x6fF78174FD667fD21d82eE047d38dc15b5440d71"]
+          owners: ["${owner}"]
           tags: [
             { name: "Content-Type", values: ["application/json"] }
             { name: "Press Events", values: ["${eventName}"] }

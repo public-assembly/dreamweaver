@@ -52,7 +52,7 @@ export async function getEvents() {
     // fetch current block number
     const currentBlock = await viemClient.getBlockNumber();
     console.log(`Current block number is ${currentBlock}`);
-    // determine the starting block for fetching blocks TODO: this has to be better lol. right now it uses the last event's block number and its not the last item on our receipt
+    // determine the starting block for fetching blocks
     const eventName = eventObjects[eventObjects.length - 1].event;
     let fromBlock = await getLastBlock(eventName);
     console.log(`event: ${eventName}`);
@@ -60,7 +60,10 @@ export async function getEvents() {
     if (fromBlock === null) {
       fromBlock = BigInt(3570818); // Replace with your hardcoded block number
     }
-    // fetch logs in chunks of 10k blocks. you can adjust as needed. TODO: possibly add option to go from last checked block to current block and retreive everything in one chunk
+    // fetch logs in chunks of 10k blocks. you can adjust as needed. 
+    // if you want to process all blocks in one go, you can move fetchLogs outside the loop and remove loop.
+    // however, this may take a long time. 
+  
     while (fromBlock <= currentBlock) {
       console.log('From Block: ', fromBlock); // Debug line
       let toBlock: bigint =
@@ -75,6 +78,7 @@ export async function getEvents() {
   
       fromBlock = toBlock + BigInt(1);
     }
+    
     // if no log found, return empty json object
     if (allLogs.length === 0) {
       console.log('No logs to return.');

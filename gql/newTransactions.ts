@@ -1,10 +1,13 @@
 import gql from 'graphql-tag';
+import 'dotenv/config';
 
-// TODO: don't hardcode `owners`
+// pass address you want to query 
+const owner = process.env.OWNER;
+
 export const NEW_TRANSACTIONS = gql`
   query {
     transactions(
-      owners: ["0x6fF78174FD667fD21d82eE047d38dc15b5440d71"]
+      owners: ["${owner}""]
       tags: [
         { name: "Content-Type", values: ["application/json"] }
         {
