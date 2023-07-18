@@ -7,7 +7,7 @@ const owner = process.env.OWNER;
 export const NEW_TRANSACTIONS = gql`
   query {
     transactions(
-      owners: ["${owner}""]
+      owners: ["${owner}"]
       tags: [
         { name: "Content-Type", values: ["application/json"] }
         {

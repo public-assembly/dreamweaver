@@ -55,11 +55,11 @@ export async function getEvents() {
     // determine the starting block for fetching blocks
     const eventName = eventObjects[eventObjects.length - 1].event;
     let fromBlock = await getLastBlock(eventName);
-    console.log(`event: ${eventName}`);
     // if no block is found then we start at a hard coded ethereum block number
     if (fromBlock === null) {
       fromBlock = BigInt(3570818); // Replace with your hardcoded block number
     }
+    
     // fetch logs in chunks of 10k blocks. you can adjust as needed. 
     // if you want to process all blocks in one go, you can move fetchLogs outside the loop and remove loop.
     // however, this may take a long time. 
@@ -78,7 +78,7 @@ export async function getEvents() {
   
       fromBlock = toBlock + BigInt(1);
     }
-    
+
     // if no log found, return empty json object
     if (allLogs.length === 0) {
       console.log('No logs to return.');
