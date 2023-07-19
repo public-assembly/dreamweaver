@@ -5,7 +5,7 @@ import { Log } from 'viem';
 import gql from 'graphql-tag';
 import 'dotenv/config';
 import { viemClient } from '../viem';
-import { Tag, Node, Edge, Transactions, GraphQLResponse } from '../interfaces/transactionInterfaces';
+import { Tag, Node, Edge, Transactions, GraphQLResponse , APLogs} from '../interfaces/transactionInterfaces';
 
 // pass address you want to query. 
 const OWNER = process.env.OWNER;
@@ -24,8 +24,20 @@ export const createBundlrTags = (eventName: string) => [
   { name: 'Press Events', value: eventName },
 ];
 
-// upload an array of logs to Arweave via Bundlr
-export async function uploadLogs(logs: Log[], eventName: string) {
+// upload an array of logs to Arweave via Bundlr ORIGINAL
+// export async function uploadLogs(logs: APLogs[], eventName: string) {
+//   const tags = createBundlrTags(eventName);
+
+//   // upload logs as a stringified JSON
+//   const response = await bundlr.upload(JSON.stringify(logs, replacer, 2), {
+//     tags,
+//   });
+//   // log the url of uploaded logs
+//   console.log(`Uploaded logs: https://arweave.net/${response.id}`);
+//   return response;
+// }
+
+export async function uploadLogs(logs: APLogs[], eventName: string) {
   const tags = createBundlrTags(eventName);
 
   // upload logs as a stringified JSON
@@ -34,9 +46,8 @@ export async function uploadLogs(logs: Log[], eventName: string) {
   });
   // log the url of uploaded logs
   console.log(`Uploaded logs: https://arweave.net/${response.id}`);
-  return response;
+  return { response, cleanedLogs: logs };
 }
-
 //  gets block number of the last event or if no last event is present return contract creation block number
 export async function getLastBlock(eventName: string) {
 
@@ -65,6 +76,7 @@ export async function getLastBlock(eventName: string) {
         }
       }
     `;
+
   // perform query
   const { data } = await apolloClient.query<GraphQLResponse>({ query });
   console.log('GraphQL Response: ', JSON.stringify(data, null, 2));
@@ -127,7 +139,7 @@ async function getContractCreationTxn(apiUrl: string) {
   
 // uploads logs given as an object
 export async function uploadLogsObject(
-  logsObject: { ToBlock: string; FromBlock: string; Logs: Log[] },
+  logsObject: { ToBlock: string; FromBlock: string; Logs: APLogs[] },
   eventName: string
 ) {
   // extract the Logs property from the logsObject
@@ -135,6 +147,7 @@ export async function uploadLogsObject(
 
   // call uploadLogs with the Logs array
   const response = await uploadLogs(Logs, eventName);
+
 
   return response;
 }

@@ -7,17 +7,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-}
-
-// a transaction model that maps to a database table. This will be a blueprint for 'Transaction' entries in your PostgreSQL database.
-
 model Transaction {
   id        String @id
   address   String
   eventType String
   tags      Json
+}
+
+model CreatePress721 {
+  id              String  @id
+  newPress        String
+  initialOwner    String
+  initialLogic    String
+  creator         String
+  initialRenderer String
+  soulbound       Boolean
+}
+
+model RendererUpdated {
+  id          Int      @id @default(autoincrement())
+  targetPress String
+  renderer    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PressInitialized {
+  id          Int      @id @default(autoincrement())
+  targetPress String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  sender      String
+}
+
+model LogicUpdated {
+  id          Int      @id @default(autoincrement())
+  targetPress String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  logic       String
+}
+
+model DataStored {
+  id          Int      @id @default(autoincrement())
+  targetPress String
+  storeCaller String
+  pointer     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tokenId     BigInt
 }
