@@ -1,3 +1,5 @@
+import { Log } from 'viem';
+
 export interface Tag {
   name: string;
   value: string;
@@ -19,4 +21,24 @@ export interface Transactions {
 
 export interface GraphQLResponse {
   transactions: Transactions;
+}
+
+export interface APLogs extends Log {
+  args?: {
+    id?: string;
+    targetPress?: string;
+    storeCaller?: string;
+    tokenId?: bigInt;
+    pointer?: string;
+    logic?: string;
+    sender?: string;
+    renderer?: string;
+    newPress?: string;
+    initialOwner?: string;
+    initialLogic?: string;
+    creator?: string;
+    initialRenderer?: string;
+    soulbound?: boolean;
+  };
+  eventName: string;
 }

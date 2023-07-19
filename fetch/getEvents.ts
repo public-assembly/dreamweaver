@@ -5,7 +5,41 @@ import { EventObject } from '../types';
 import { replacer } from '../utils';
 import { viemClient } from '../viem';
 import { fetchLogs } from './fetchLogs'
+import { APLogs} from '../interfaces/transactionInterfaces';
+import { processCleanedLogs } from '../processedCleanedLogs'
 
+
+function cleanLog(log: APLogs) {
+  const { 
+    address = '0x0', // Default value
+    blockNumber = BigInt(0), 
+    blockHash = '0x0', // Default value
+    args = {}, 
+    eventName,
+    data = '0x0', // Default value
+    logIndex = 0, // Default value
+    transactionHash = '0x0', // Default value
+    transactionIndex = 0, // Default value
+    removed = false, // Default value
+    topics = [], // Default value
+  } = log;
+
+  return {
+    address,
+    blockNumber,
+    blockHash,
+    args,
+    eventName,
+    data,
+    logIndex,
+    transactionHash,
+    transactionIndex,
+    removed,
+    topics,
+  };
+}
+
+// function to get all events
 // function to get all events
 export async function getEvents() {
     console.log('Fetching events...');
@@ -70,26 +104,36 @@ export async function getEvents() {
         fromBlock + BigInt(10000) > currentBlock
           ? currentBlock
           : fromBlock + BigInt(10000);
-  
+    
       const logs = await fetchLogs(fromBlock, toBlock, eventObjects);
       if (logs.length > 0) {
         allLogs.push(...logs);
       }
-  
+    
       fromBlock = toBlock + BigInt(1);
     }
-
+    
+    const cleanedLogs = allLogs.map(cleanLog); 
+    
     // if no log found, return empty json object
-    if (allLogs.length === 0) {
+    if (cleanedLogs.length === 0) {
       console.log('No logs to return.');
       return '{}';
     }
+    
     // converts json to string
-    const logsJson = JSON.stringify(allLogs, replacer, 2);
+    const logsJson = JSON.stringify(cleanedLogs, replacer, 2); // Changed allLogs to cleanedLogs
     console.log('Returning logs...');
-  
-    // upload all logs at once
-    const response = await uploadLogs(allLogs, eventObjects[0].event);
-  
+    
+    const response = await uploadLogs(cleanedLogs, eventObjects[0].event); // Changed allLogs to cleanedLogs
+    console.log('Uploaded logs'); // Debugging line
+
+    // how we target log.args
+    console.log(`cleaned logs args and event names: ${JSON.stringify(cleanedLogs.map(log => ({args: log.args, eventName: log.eventName})), replacer, 2)}`)
+
+    await processCleanedLogs(cleanedLogs)
+
+  //  const eventArgs= cleanedLogs.map(log => ({args: log.args, eventName: log.eventName}))
+    
     return { logsJson, eventName: eventObjects[0].event };
   }
