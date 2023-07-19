@@ -25,7 +25,6 @@ export interface GraphQLResponse {
 
 export interface APLogs extends Log {
   args?: {
-    id?: string;
     targetPress?: string;
     storeCaller?: string;
     tokenId?: bigInt;

@@ -25,7 +25,7 @@ model CreatePress721 {
 }
 
 model RendererUpdated {
-  id          Int      @id @default(autoincrement())
+  id          String   @id
   targetPress String
   renderer    String
   createdAt   DateTime @default(now())
@@ -33,7 +33,7 @@ model RendererUpdated {
 }
 
 model PressInitialized {
-  id          Int      @id @default(autoincrement())
+  id          String   @id
   targetPress String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -41,7 +41,7 @@ model PressInitialized {
 }
 
 model LogicUpdated {
-  id          Int      @id @default(autoincrement())
+  id          String   @id
   targetPress String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -49,7 +49,7 @@ model LogicUpdated {
 }
 
 model DataStored {
-  id          Int      @id @default(autoincrement())
+  id          String   @id
   targetPress String
   storeCaller String
   pointer     String

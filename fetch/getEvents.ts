@@ -5,8 +5,12 @@ import { EventObject } from '../types';
 import { replacer } from '../utils';
 import { viemClient } from '../viem';
 import { fetchLogs } from './fetchLogs'
-import { APLogs} from '../interfaces/transactionInterfaces';
+import { APLogs, Transactions, Tag} from '../interfaces/transactionInterfaces';
 import { processCleanedLogs } from '../processedCleanedLogs'
+import { getTransactions} from '../bundlrToPostgres'
+import { Prisma } from '@prisma/client';
+
+
 
 
 function cleanLog(log: APLogs) {
@@ -41,6 +45,29 @@ function cleanLog(log: APLogs) {
 
 // function to get all events
 // function to get all events
+function transformTags(tags: Prisma.JsonValue): Tag[] {
+  // Check if tags is an array
+  if (Array.isArray(tags)) {
+    // If tags is an array, map over it and transform each item into a Tag
+    return tags.map(tag => {
+      // Here, you would write code to transform each tag into a Tag
+      // This is just an example and might not match your actual Tag structure
+      if (typeof tag === 'object' && tag !== null && 'name' in tag && 'value' in tag) {
+        return {
+          name: String(tag.name),
+          value: String(tag.value),
+        };
+      } else {
+        // If the tag is not an object with 'name' and 'value' fields, return a default Tag
+        return { name: '', value: '' };
+      }
+    });
+  } else {
+    // If tags is not an array, return an empty array
+    return [];
+  }
+}
+
 export async function getEvents() {
     console.log('Fetching events...');
   
@@ -130,8 +157,18 @@ export async function getEvents() {
 
     // how we target log.args
     console.log(`cleaned logs args and event names: ${JSON.stringify(cleanedLogs.map(log => ({args: log.args, eventName: log.eventName})), replacer, 2)}`)
+    const transactionsArray = await getTransactions();
 
-    await processCleanedLogs(cleanedLogs)
+    const transactions: Transactions = {
+      edges: transactionsArray.map(transaction => ({
+        node: {
+          ...transaction,
+          tags: transaction.tags ? transformTags(transaction.tags) : [],  // Check if transaction.tags is null
+        },
+      })),
+    };
+
+    await processCleanedLogs(transactions, cleanedLogs)
 
   //  const eventArgs= cleanedLogs.map(log => ({args: log.args, eventName: log.eventName}))
     

@@ -90,7 +90,7 @@ function shapeRendererUpdated(node: Node) {
 }
 
 // not really currently used
-async function getTransactions() {
+export async function getTransactions() {
   const transactions = await prisma.transaction.findMany();
   console.log(transactions);
   return transactions;
