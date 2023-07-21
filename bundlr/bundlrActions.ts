@@ -24,19 +24,6 @@ export const createBundlrTags = (eventName: string) => [
   { name: 'Press Events', value: eventName },
 ];
 
-// upload an array of logs to Arweave via Bundlr ORIGINAL
-// export async function uploadLogs(logs: APLogs[], eventName: string) {
-//   const tags = createBundlrTags(eventName);
-
-//   // upload logs as a stringified JSON
-//   const response = await bundlr.upload(JSON.stringify(logs, replacer, 2), {
-//     tags,
-//   });
-//   // log the url of uploaded logs
-//   console.log(`Uploaded logs: https://arweave.net/${response.id}`);
-//   return response;
-// }
-
 export async function uploadLogs(logs: APLogs[], eventName: string) {
   const tags = createBundlrTags(eventName);
 
@@ -44,6 +31,7 @@ export async function uploadLogs(logs: APLogs[], eventName: string) {
   const response = await bundlr.upload(JSON.stringify(logs, replacer, 2), {
     tags,
   });
+
   // log the url of uploaded logs
   console.log(`Uploaded logs: https://arweave.net/${response.id}`);
   return { response, cleanedLogs: logs };

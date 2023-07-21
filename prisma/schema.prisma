@@ -14,18 +14,8 @@ model Transaction {
   tags      Json
 }
 
-model CreatePress721 {
-  id              String  @id
-  newPress        String
-  initialOwner    String
-  initialLogic    String
-  creator         String
-  initialRenderer String
-  soulbound       Boolean
-}
-
 model RendererUpdated {
-  id          Int      @id @default(autoincrement())
+  id          String   @id
   targetPress String
   renderer    String
   createdAt   DateTime @default(now())
@@ -33,7 +23,7 @@ model RendererUpdated {
 }
 
 model PressInitialized {
-  id          Int      @id @default(autoincrement())
+  id          String   @id
   targetPress String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -41,7 +31,7 @@ model PressInitialized {
 }
 
 model LogicUpdated {
-  id          Int      @id @default(autoincrement())
+  id          String   @id
   targetPress String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -49,11 +39,21 @@ model LogicUpdated {
 }
 
 model DataStored {
-  id          Int      @id @default(autoincrement())
+  id          String   @id
   targetPress String
   storeCaller String
   pointer     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   tokenId     BigInt
+}
+
+model Create721Press {
+  id              String  @id
+  newPress        String
+  initialOwner    String
+  initialLogic    String
+  creator         String
+  initialRenderer String
+  soulbound       Boolean
 }

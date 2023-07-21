@@ -36,27 +36,25 @@ PRIVATE_KEY='' (for funding bundlr with eth)
 
 to start indexer and check for events related from the given addresses:
 
-pnpm ts-node index.ts
+pnpm ts-node processaAndUpload.ts
 
-to send to Postgres using prisma:
+some useful prisma commands:
 
 npx prisma generate -- schema== prisma/schema.prisma
 npx prisma migrate dev --name init
 npx prisma migrate deploy
 npx prisma db pull
-pnpm ts-node bundlrToPostgres.ts
+
 
 ## Files
 
 Here is a brief overview of the important files and their functions:
 
-- `index.ts`: starts by logging the Ethereum address connected to the Bundlr client, and the balance of that address. The balance is calculated by calling Bundlr's `getLoadedBalance` method and converting the returned atomic balance to a human-readable format. Next, the `getEvents` function is called to fetch event logs from Ethereum. If no new logs are found, the script logs this information and returns early to stop the execution. If new logs are found, they are parsed into a JSON object and then into an array of log objects. The script then retrieves the block number from the last log in the array. The block number is incremented by one to get the `fromBlock` value for the next execution. This is the block number from which the next log fetching will start. The `fromBlock` value is logged to the console for debugging purposes.
+- `processAndUpload.ts`: this is the main script of the application. It connects to a wallet, fetches the account balance, retrieves events, and processes new transactions from the Assembly Press protocol events, storing the results in a database via Prisma. It shapes the data according to each event type and creates or updates records in the database. If a record exists, it updates it; otherwise, it creates a new one.
 
 - `bundlrInit.ts` : initializes bundlr 
 
 - `bundlrAction.ts`:  handles Bundlr related actions: initializing Bundlr and Apollo client, creating metadata for Bundlr uploads, uploading logs to Arweave, fetching the last block from the last event in a transaction hash ID, and uploading log objects.
-
-- `bundlrToPostgres.ts`: handles the integration between the Bundlr network and your PostgreSQL database via Prisma. It fetches new transactions from the Bundlr network using Apollo Client, processes them, and inserts them into your PostgreSQL database using Prisma.
 
 - `schema.prisma`: contains the database schema for the Prisma client. It describes the `User` and `Transaction` models.
 
