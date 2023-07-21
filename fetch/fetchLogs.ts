@@ -1,5 +1,4 @@
 import { viemClient } from '../viem';
-import type { Hex, Abi } from 'viem';
 import { EventObject } from '../types';
 
 // function to fetch logs for given blocks and event objects
@@ -36,6 +35,5 @@ export async function fetchLogs(
         )
     )
   );
-
   return logs.flat();
 }

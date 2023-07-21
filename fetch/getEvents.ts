@@ -6,8 +6,8 @@ import { replacer } from '../utils';
 import { viemClient } from '../viem';
 import { fetchLogs } from './fetchLogs'
 import { APLogs, Transactions, Tag} from '../interfaces/transactionInterfaces';
-import { processCleanedLogs } from '../processedCleanedLogs'
-import { getTransactions} from '../bundlrToPostgres'
+import { processCleanedLogs } from '../processAndUpload';
+import { getTransactions } from '../processAndUpload';
 import { Prisma } from '@prisma/client';
 
 
@@ -152,7 +152,7 @@ export async function getEvents() {
     console.log('Uploaded logs'); // Debugging line
 
     // how we target log.args
-    console.log(`cleaned logs args and event names: ${JSON.stringify(cleanedLogs.map(log => ({args: log.args, eventName: log.eventName})), replacer, 2)}`)
+    // console.log(`cleaned logs args and event names: ${JSON.stringify(cleanedLogs.map(log => ({args: log.args, eventName: log.eventName})), replacer, 2)}`)
     const transactionsArray = await getTransactions();
 
     const transactions: Transactions = {

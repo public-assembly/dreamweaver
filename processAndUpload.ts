@@ -132,9 +132,8 @@ function shapeCreate721Press(node: Node) {
   }
   
 
-async function processCleanedLogs(transactions: Transactions, cleanedLogs: APLogs[]) {
+export async function processCleanedLogs(transactions: Transactions, cleanedLogs: APLogs[]) {
     console.log('Processing cleaned logs...'); 
-    console.log('Processing cleaned logs...'); // Debugging line
     for (const edge of transactions.edges) {
         for (const log of cleanedLogs) {
             if (!log.args) {
