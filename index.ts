@@ -9,8 +9,10 @@ async function main() {
   const atomicBalance = await bundlr.getLoadedBalance();
   const convertedBalance = bundlr.utils.fromAtomic(atomicBalance).toString();
   console.log('Account balance:', convertedBalance);
+  
   // fetch event logs from chain
   const result = await getEvents();
+
   // if no logs return early
   if (typeof result === 'string') {
     console.log('No new logs to upload.');
@@ -18,8 +20,6 @@ async function main() {
   }
 
   console.log('Starting to fetch press creation events...');
-
-  // start parse. this is not working at the moment, we just get the value of where we should start next but need to fix this lowkey. help
 
   // parse logsJson into an array of log objects
   const logs = JSON.parse(result.logsJson);

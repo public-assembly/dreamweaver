@@ -1,19 +1,146 @@
-import { PrismaClient } from "@prisma/client";
-import { APLogs, Transactions} from "./interfaces/transactionInterfaces";
+import { getEvents } from './fetch';
+import { bundlr } from './bundlr';
+import { PrismaClient } from '@prisma/client';
+import { Transactions, APLogs, Node } from './interfaces/transactionInterfaces';
+import { apolloClient } from './apolloClient';
+import { NEW_TRANSACTIONS } from './gql';
 
 const prisma = new PrismaClient();
 
-export async function processCleanedLogs(transactions: Transactions, cleanedLogs: APLogs[]) {
+async function main() {
+  console.log('Connected wallet address:', bundlr.address);
+
+  const atomicBalance = await bundlr.getLoadedBalance();
+  const convertedBalance = bundlr.utils.fromAtomic(atomicBalance).toString();
+  console.log('Account balance:', convertedBalance);
+
+  const result = await getEvents();
+
+  if (typeof result === 'string') {
+    console.log('No new logs to upload.');
+    return;
+  }
+
+  console.log('Starting to fetch press creation events...');
+
+  const logs = JSON.parse(result.logsJson);
+  const lastLog = logs[logs.length - 1];
+  const blockNumber = lastLog.blockNumber;
+  let fromBlock = BigInt(blockNumber) + BigInt(1);
+
+  console.log('Next fromBlock:', fromBlock);
+
+  const { data } = await apolloClient.query({ query: NEW_TRANSACTIONS });
+  const processedTransactions = processTransactions(data.transactions);
+
+  for (const transaction of processedTransactions) {
+    if (transaction) {
+      await prisma.transaction.upsert({
+        where: { id: data.id },
+        create: {
+            id: data.id,
+            address: data.address,
+            eventType: data.eventName,
+            tags: data.tags
+        },
+        update: {
+            id: data.id,
+            address: data.address,
+            eventType: data.eventName,
+            tags: data.tags
+          },
+      });
+    }
+  }
+
+  const cleanedLogs: APLogs[] = []; 
+  await processCleanedLogs(data.transactions, cleanedLogs);
+}
+
+function processTransactions(transactions: Transactions) {
+  return transactions.edges.map((edge) => {
+    const eventTag = edge.node.tags.find((tag) => tag.name === 'Press Events');
+    if (!eventTag) {
+      return null;
+    }
+    const eventType = eventTag.value;
+    const shapedData = shapeData(edge.node);
+    switch (eventType) {
+      case 'Create721Press':
+      case 'DataStored':
+      case 'DataRemoved':
+      case 'DataOverwritten':
+      case 'LogicUpdated':
+      case 'PressInitialized':
+      case 'RendererUpdated':
+        return shapedData;
+      default:
+        return null;
+    }
+  });
+}
+
+function shapeData(node: Node) {
+  const tags = node.tags.reduce((acc, tag) => {
+    acc[tag.name] = tag.value;
+    return acc;
+  }, {} as Record<string, string>);
+
+  return {
+    id: node.id,
+    address: node.address,
+    eventType: tags['Press Events'],
+    tags,
+  };
+}
+
+
+// functions to shape the data specific to each event type. Currently, they all just call shapeData, but they could be customized in the future.
+function shapeCreate721Press(node: Node) {
+    return shapeData(node);
+  }
+  
+  function shapeDataStored(node: Node) {
+    return shapeData(node);
+  }
+  
+  function shapeDataRemoved(node: Node) {
+    return shapeData(node);
+  }
+  
+  function shapeDataOverwritten(node: Node) {
+    return shapeData(node);
+  }
+  
+  function shapeLogicUpdated(node: Node) {
+    return shapeData(node);
+  }
+  
+  function shapePressInitialized(node: Node) {
+    return shapeData(node);
+  }
+  
+  function shapeRendererUpdated(node: Node) {
+    return shapeData(node);
+  }
+  
+  // not really currently used
+  export async function getTransactions() {
+    const transactions = await prisma.transaction.findMany();
+    console.log(transactions);
+    return transactions;
+  }
+  
+
+async function processCleanedLogs(transactions: Transactions, cleanedLogs: APLogs[]) {
+    console.log('Processing cleaned logs...'); 
     console.log('Processing cleaned logs...'); // Debugging line
     for (const edge of transactions.edges) {
-        console.log(transactions.edges)
         for (const log of cleanedLogs) {
             if (!log.args) {
                 console.log(`Skipping log due to missing args: ${JSON.stringify(log)}`);
                 continue;
             }
-            console.log(log.eventName)
-            console.log(log)
             switch (log.eventName) {
                 case 'Create721Press':
                     if (edge.node.id && log.args.newPress && log.args.initialOwner && log.args.initialLogic && log.args.creator && log.args.initialRenderer && typeof log.args.soulbound !== 'undefined') {
@@ -119,3 +246,12 @@ export async function processCleanedLogs(transactions: Transactions, cleanedLogs
         }
     }
 }
+
+main()
+  .catch((e) => {
+    console.error('Error running main: ', e);
+    throw e;
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

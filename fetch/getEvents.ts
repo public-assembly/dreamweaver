@@ -11,8 +11,6 @@ import { getTransactions} from '../bundlrToPostgres'
 import { Prisma } from '@prisma/client';
 
 
-
-
 function cleanLog(log: APLogs) {
   const { 
     address = '0x0', // Default value
@@ -44,14 +42,11 @@ function cleanLog(log: APLogs) {
 }
 
 // function to get all events
-// function to get all events
 function transformTags(tags: Prisma.JsonValue): Tag[] {
   // Check if tags is an array
   if (Array.isArray(tags)) {
     // If tags is an array, map over it and transform each item into a Tag
     return tags.map(tag => {
-      // Here, you would write code to transform each tag into a Tag
-      // This is just an example and might not match your actual Tag structure
       if (typeof tag === 'object' && tag !== null && 'name' in tag && 'value' in tag) {
         return {
           name: String(tag.name),
@@ -110,6 +105,7 @@ export async function getEvents() {
         address: sepolia.CURATION_DATABASE_V1,
       },
     ];
+
     // fetch current block number
     const currentBlock = await viemClient.getBlockNumber();
     console.log(`Current block number is ${currentBlock}`);
@@ -172,5 +168,7 @@ export async function getEvents() {
 
   //  const eventArgs= cleanedLogs.map(log => ({args: log.args, eventName: log.eventName}))
     
-    return { logsJson, eventName: eventObjects[0].event };
+    // return { logsJson, eventName: eventObjects[0].event };
+    return { logsJson, cleanedLogs, eventName: eventObjects[0].event };
+
   }

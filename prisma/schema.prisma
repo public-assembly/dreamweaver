@@ -14,16 +14,6 @@ model Transaction {
   tags      Json
 }
 
-model CreatePress721 {
-  id              String  @id
-  newPress        String
-  initialOwner    String
-  initialLogic    String
-  creator         String
-  initialRenderer String
-  soulbound       Boolean
-}
-
 model RendererUpdated {
   id          String   @id
   targetPress String
@@ -56,4 +46,14 @@ model DataStored {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   tokenId     BigInt
+}
+
+model Create721Press {
+  id              String  @id
+  newPress        String
+  initialOwner    String
+  initialLogic    String
+  creator         String
+  initialRenderer String
+  soulbound       Boolean
 }
