@@ -67,7 +67,6 @@ export async function getLastBlock(eventName: string) {
 
   // perform query
   const { data } = await apolloClient.query<GraphQLResponse>({ query });
-  console.log('GraphQL Response: ', JSON.stringify(data, null, 2));
 
   // if no event transactions are found, return the block number of when the contract was created
   

@@ -149,7 +149,6 @@ export async function getEvents() {
     console.log('Returning logs...');
     
     const response = await uploadLogs(cleanedLogs, eventObjects[0].event); // Changed allLogs to cleanedLogs
-    console.log('Uploaded logs'); // Debugging line
 
     // how we target log.args
     // console.log(`cleaned logs args and event names: ${JSON.stringify(cleanedLogs.map(log => ({args: log.args, eventName: log.eventName})), replacer, 2)}`)
@@ -166,9 +165,6 @@ export async function getEvents() {
 
     await processCleanedLogs(transactions, cleanedLogs)
 
-  //  const eventArgs= cleanedLogs.map(log => ({args: log.args, eventName: log.eventName}))
-    
-    // return { logsJson, eventName: eventObjects[0].event };
     return { logsJson, cleanedLogs, eventName: eventObjects[0].event };
 
   }

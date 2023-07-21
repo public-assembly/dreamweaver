@@ -36,7 +36,7 @@ PRIVATE_KEY='' (for funding bundlr with eth)
 
 to start indexer and check for events related from the given addresses:
 
-pnpm ts-node processaAndUpload.ts
+pnpm ts-node processAndUpload.ts
 
 some useful prisma commands:
 

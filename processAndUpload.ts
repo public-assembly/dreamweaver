@@ -8,12 +8,19 @@ import { NEW_TRANSACTIONS } from './gql';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Connected wallet address:', bundlr.address);
 
+  async function checkBalance() {
+  console.log('Connected wallet address:', bundlr.address);
   const atomicBalance = await bundlr.getLoadedBalance();
   const convertedBalance = bundlr.utils.fromAtomic(atomicBalance).toString();
   console.log('Account balance:', convertedBalance);
+  }
 
+checkBalance()
+
+  console.log('Starting to fetch press creation events...');
+
+async function getFromBlock() {
   const result = await getEvents();
 
   if (typeof result === 'string') {
@@ -21,14 +28,15 @@ async function main() {
     return;
   }
 
-  console.log('Starting to fetch press creation events...');
-
   const logs = JSON.parse(result.logsJson);
   const lastLog = logs[logs.length - 1];
   const blockNumber = lastLog.blockNumber;
   let fromBlock = BigInt(blockNumber) + BigInt(1);
 
   console.log('Next fromBlock:', fromBlock);
+}
+
+getFromBlock()
 
   const { data } = await apolloClient.query({ query: NEW_TRANSACTIONS });
   const processedTransactions = processTransactions(data.transactions);
@@ -51,32 +59,29 @@ async function main() {
           },
       });
     }
+
   }
 
   const cleanedLogs: APLogs[] = []; 
   await processCleanedLogs(data.transactions, cleanedLogs);
 }
-
 function processTransactions(transactions: Transactions) {
+  const eventTypes = [
+    'Create721Press',
+    'DataStored',
+    'DataRemoved',
+    'DataOverwritten',
+    'LogicUpdated',
+    'PressInitialized',
+    'RendererUpdated',
+  ];
+  
   return transactions.edges.map((edge) => {
     const eventTag = edge.node.tags.find((tag) => tag.name === 'Press Events');
-    if (!eventTag) {
+    if (!eventTag || !eventTypes.includes(eventTag.value)) {
       return null;
     }
-    const eventType = eventTag.value;
-    const shapedData = shapeData(edge.node);
-    switch (eventType) {
-      case 'Create721Press':
-      case 'DataStored':
-      case 'DataRemoved':
-      case 'DataOverwritten':
-      case 'LogicUpdated':
-      case 'PressInitialized':
-      case 'RendererUpdated':
-        return shapedData;
-      default:
-        return null;
-    }
+    return shapeData(edge.node);
   });
 }
 
@@ -94,40 +99,8 @@ function shapeData(node: Node) {
   };
 }
 
-
-// functions to shape the data specific to each event type. Currently, they all just call shapeData, but they could be customized in the future.
-function shapeCreate721Press(node: Node) {
-    return shapeData(node);
-  }
-  
-  function shapeDataStored(node: Node) {
-    return shapeData(node);
-  }
-  
-  function shapeDataRemoved(node: Node) {
-    return shapeData(node);
-  }
-  
-  function shapeDataOverwritten(node: Node) {
-    return shapeData(node);
-  }
-  
-  function shapeLogicUpdated(node: Node) {
-    return shapeData(node);
-  }
-  
-  function shapePressInitialized(node: Node) {
-    return shapeData(node);
-  }
-  
-  function shapeRendererUpdated(node: Node) {
-    return shapeData(node);
-  }
-  
-  // not really currently used
-  export async function getTransactions() {
+export async function getTransactions() {
     const transactions = await prisma.transaction.findMany();
-    console.log(transactions);
     return transactions;
   }
   
@@ -142,6 +115,7 @@ export async function processCleanedLogs(transactions: Transactions, cleanedLogs
             }
             switch (log.eventName) {
                 case 'Create721Press':
+                  console.log(log.eventName)
                     if (edge.node.id && log.args.newPress && log.args.initialOwner && log.args.initialLogic && log.args.creator && log.args.initialRenderer && typeof log.args.soulbound !== 'undefined') {
                         const createPressEvent = {
                             where: { id: edge.node.id },
@@ -153,8 +127,6 @@ export async function processCleanedLogs(transactions: Transactions, cleanedLogs
                                 creator: log.args.creator,
                                 initialRenderer: log.args.initialRenderer,
                                 soulbound: log.args.soulbound,
-                                address: log.address,
-                                eventType: log.eventName,
                             },
                             update: {
                                 id: edge.node.id,
@@ -245,6 +217,7 @@ export async function processCleanedLogs(transactions: Transactions, cleanedLogs
         }
     }
 }
+
 
 main()
   .catch((e) => {
