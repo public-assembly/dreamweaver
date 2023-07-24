@@ -4,6 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import { Transactions, APLogs, Node } from './interfaces/transactionInterfaces';
 import { apolloClient } from './apolloClient';
 import { NEW_TRANSACTIONS } from './gql';
+import { replacer } from './utils';
 
 const prisma = new PrismaClient();
 
@@ -16,53 +17,63 @@ async function main() {
   console.log('Account balance:', convertedBalance);
   }
 
-checkBalance()
+await checkBalance()
 
   console.log('Starting to fetch press creation events...');
 
+const result = await getEvents();
+const { cleanedLogs } = result
+
 async function getFromBlock() {
-  const result = await getEvents();
 
   if (typeof result === 'string') {
     console.log('No new logs to upload.');
     return;
   }
+  
 
   const logs = JSON.parse(result.logsJson);
   const lastLog = logs[logs.length - 1];
   const blockNumber = lastLog.blockNumber;
+  console.log('last blocknumber:', blockNumber)
+  // const blockNumber = BigInt(3839849)
   let fromBlock = BigInt(blockNumber) + BigInt(1);
 
   console.log('Next fromBlock:', fromBlock);
 }
 
-getFromBlock()
+await getFromBlock()
 
   const { data } = await apolloClient.query({ query: NEW_TRANSACTIONS });
   const processedTransactions = processTransactions(data.transactions);
 
+  // console.log(`testing: ${JSON.stringify(data, replacer, 2)}`)
+
   for (const transaction of processedTransactions) {
     if (transaction) {
+      console.log(`transaction: ${JSON.stringify(transaction, replacer, 2)}`);
       await prisma.transaction.upsert({
-        where: { id: data.id },
+        where: { id: transaction.id },
         create: {
-            id: data.id,
-            address: data.address,
-            eventType: data.eventName,
-            tags: data.tags
+            id: transaction.id,
+            address: transaction.address,
+            eventType: transaction.eventType,
+            tags: transaction.tags
         },
         update: {
-            id: data.id,
-            address: data.address,
-            eventType: data.eventName,
-            tags: data.tags
+            id: transaction.id,
+            address: transaction.address,
+            eventType: transaction.eventType,
+            tags: transaction.tags
           },
-      });
+      }).catch(e => console.error("Error upserting transaction:", e.message));
     }
 
   }
 
-  const cleanedLogs: APLogs[] = []; 
+
+
+  // console.log(`cleaned fucking logs: ${JSON.stringify(cleanedLogs, replacer, 2)}`)
   await processCleanedLogs(data.transactions, cleanedLogs);
 }
 function processTransactions(transactions: Transactions) {
@@ -106,15 +117,21 @@ export async function getTransactions() {
   
 
 export async function processCleanedLogs(transactions: Transactions, cleanedLogs: APLogs[]) {
-    console.log('Processing cleaned logs...'); 
+  // console.log('processCleanedLogs function called');
+  //   console.log('Processing cleaned logs...'); 
+    // console.log('transactions.edges:', transactions.edges);
+    console.log('cleanedLogs:', `${JSON.stringify(cleanedLogs,replacer,2)}`);
     for (const edge of transactions.edges) {
         for (const log of cleanedLogs) {
+          console.log('log:', log);
             if (!log.args) {
                 console.log(`Skipping log due to missing args: ${JSON.stringify(log)}`);
                 continue;
             }
+            console.log(`Processing log with event name: ${log.eventName}`); 
             switch (log.eventName) {
                 case 'Create721Press':
+                  console.log(log.args);
                   console.log(log.eventName)
                     if (edge.node.id && log.args.newPress && log.args.initialOwner && log.args.initialLogic && log.args.creator && log.args.initialRenderer && typeof log.args.soulbound !== 'undefined') {
                         const createPressEvent = {
@@ -131,13 +148,19 @@ export async function processCleanedLogs(transactions: Transactions, cleanedLogs
                             update: {
                                 id: edge.node.id,
                               },
-                        }; 
-                        await prisma.create721Press.upsert(createPressEvent);
-                    } else {
-                        console.log('Skipping Create721Press event due to missing args');
-                    }
+                        };
+                        try {
+                          await prisma.create721Press.upsert(createPressEvent);
+                        } catch (e) {
+                          if (e instanceof Error) {
+                            console.error("Error upserting Create721Press event:", e.message);
+                          } else {
+                            console.error("An error occurred while upserting Create721Press event");
+                    } }}
                     break;
                 case 'RendererUpdated':
+                  console.log(log.args);
+                  console.log(log.eventName)
                     if (edge.node.id && log.args.targetPress && log.args.renderer) {
                         const rendererEvent = {
                             where: { id: edge.node.id },
@@ -150,12 +173,18 @@ export async function processCleanedLogs(transactions: Transactions, cleanedLogs
                                 id: edge.node.id,
                               },
                         }; 
-                        await prisma.rendererUpdated.upsert(rendererEvent);
-                    } else {
-                        console.log('Skipping RendererUpdated event due to missing args');
-                    }
+                        try {
+                          await prisma.rendererUpdated.upsert(rendererEvent);
+                        } catch (e) {
+                          if (e instanceof Error) {
+                            console.error("Error upserting Create721Press event:", e.message);
+                          } else {
+                            console.error("An error occurred while upserting Create721Press event");
+                    } }}
                     break;
                 case 'DataStored':
+                  console.log(log.args);
+                  console.log(log.eventName)
                     if (edge.node.id && log.args.targetPress && log.args.storeCaller && log.args.tokenId && log.args.pointer) {
                         const dataStoredEvent = {
                             where: { id: edge.node.id },
@@ -170,12 +199,18 @@ export async function processCleanedLogs(transactions: Transactions, cleanedLogs
                                 id: edge.node.id,
                               },
                         }; 
-                        await prisma.dataStored.upsert(dataStoredEvent);
-                    } else {
-                        console.log('Skipping DataStored event due to missing args');
-                    }
+                        try {
+                          await prisma.dataStored.upsert(dataStoredEvent);
+                        } catch (e) {
+                          if (e instanceof Error) {
+                            console.error("Error upserting Create721Press event:", e.message);
+                          } else {
+                            console.error("An error occurred while upserting Create721Press event");
+                    } }}
                     break;
                 case 'LogicUpdated':
+                  console.log(log.args);
+                  console.log(log.eventName)
                     if (edge.node.id && log.args.targetPress && log.args.logic) {
                         const logicEvent = {
                             where: { id: edge.node.id },
@@ -188,12 +223,18 @@ export async function processCleanedLogs(transactions: Transactions, cleanedLogs
                                 id: edge.node.id,
                               },
                         }; 
-                        await prisma.logicUpdated.upsert(logicEvent);
-                    } else {
-                        console.log('Skipping LogicUpdated event due to missing args');
-                    }
+                        try {
+                          await prisma.logicUpdated.upsert(logicEvent);
+                        } catch (e) {
+                          if (e instanceof Error) {
+                            console.error("Error upserting Create721Press event:", e.message);
+                          } else {
+                            console.error("An error occurred while upserting Create721Press event");
+                    } }}
                     break;
                 case 'PressInitialized':
+                  console.log(log.args);
+                  console.log(log.eventName)
                     if (edge.node.id && log.args.targetPress && log.args.sender) {
                         const pressEvent =  {
                             where: { id: edge.node.id },
@@ -206,10 +247,14 @@ export async function processCleanedLogs(transactions: Transactions, cleanedLogs
                                 id: edge.node.id,
                               },
                         };
-                        await prisma.pressInitialized.upsert(pressEvent);
-                    } else {
-                        console.log('Skipping PressInitialized event due to missing args');
-                    }
+                        try {
+                          await prisma.pressInitialized.upsert(pressEvent);
+                        } catch (e) {
+                          if (e instanceof Error) {
+                            console.error("Error upserting Create721Press event:", e.message);
+                          } else {
+                            console.error("An error occurred while upserting Create721Press event");
+                    } }}
                     break;
                 default:
                     console.log(`Unknown event type: ${log.eventName}`);
@@ -225,5 +270,6 @@ main()
     throw e;
   })
   .finally(async () => {
+    console.log("Finished all Prisma operations, disconnecting...");
     await prisma.$disconnect();
   });

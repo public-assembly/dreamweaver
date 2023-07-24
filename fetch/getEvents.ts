@@ -140,8 +140,8 @@ export async function getEvents() {
     
     // if no log found, return empty json object
     if (cleanedLogs.length === 0) {
-      console.log('No logs to return.');
-      return '{}';
+      console.log('No logs to return. ');
+      return { cleanedLogs: [], logsJson: '{}', eventName: eventObjects[0].event };
     }
     
     // converts json to string
