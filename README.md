@@ -31,6 +31,8 @@ also make sure you include:
 ALCHEMY_SEPOLIA_KEY=
 ETHERSCAN_API_KEY=
 PRIVATE_KEY='' (for funding bundlr with eth)
+OWNER='' (you can change OWNER to any address and the script will be able to populate the event tables, but not the Transaction table. Refer to prisma.schema to see Transaction table and other Event Tables. Notice that bundlr will only keep track of the transactions that were funded by the address corresponding to the private key you provided.)
+CONTRACT_ADDRESS='' (address of the contract you want to track. i am currently using ERC721_PRESS_FACTORY. in theory you can use any address but you will have to adjust the event information and abi accordingly. )
 
 ## Running
 
@@ -43,7 +45,9 @@ some useful prisma commands:
 npx prisma generate -- schema== prisma/schema.prisma
 npx prisma migrate dev --name init
 npx prisma migrate deploy
-npx prisma db pull
+
+run script: 
+pnpm ts-node processAndUpload.ts
 
 
 ## Files
