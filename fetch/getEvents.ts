@@ -7,7 +7,7 @@ import { viemClient } from '../viem';
 import { fetchLogs } from './fetchLogs'
 import { APLogs, Transactions, Tag} from '../interfaces/transactionInterfaces';
 import { processCleanedLogs } from '../processAndUpload';
-import { getTransactions } from '../processAndUpload';
+import { getTransactions } from './getTransactions';
 import { Prisma } from '@prisma/client';
 
 
@@ -140,7 +140,7 @@ export async function getEvents() {
     
     // if no log found, return empty json object
     if (cleanedLogs.length === 0) {
-      console.log('No logs to return. ');
+      console.log('No logs to return.');
       return { cleanedLogs: [], logsJson: '{}', eventName: eventObjects[0].event };
     }
     

@@ -1,5 +1,6 @@
 import { getEvents } from './fetch';
-import { bundlr } from './bundlr';
+import { getBalance } from './fetch/getBalance';
+import { getTransactions } from './fetch/getTransactions';
 import { PrismaClient } from '@prisma/client';
 import { Transactions, APLogs, Node } from './interfaces/transactionInterfaces';
 import { apolloClient } from './apolloClient';
@@ -10,16 +11,10 @@ const prisma = new PrismaClient();
 
 async function main() {
 
-  async function checkBalance() {
-  console.log('Connected wallet address:', bundlr.address);
-  const atomicBalance = await bundlr.getLoadedBalance();
-  const convertedBalance = bundlr.utils.fromAtomic(atomicBalance).toString();
-  console.log('Account balance:', convertedBalance);
-  }
+await getBalance()
+await getTransactions()
 
-await checkBalance()
-
-  console.log('Starting to fetch press creation events...');
+console.log('Starting to fetch press creation events...');
 
 const result = await getEvents();
 const { cleanedLogs } = result
@@ -110,11 +105,7 @@ function shapeData(node: Node) {
   };
 }
 
-export async function getTransactions() {
-    const transactions = await prisma.transaction.findMany();
-    return transactions;
-  }
-  
+
 
 export async function processCleanedLogs(transactions: Transactions, cleanedLogs: APLogs[]) {
   // console.log('processCleanedLogs function called');
