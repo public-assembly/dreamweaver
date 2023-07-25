@@ -28,6 +28,7 @@ async function main() {
     const logs = JSON.parse(result.logsJson);
     const lastLog = logs[logs.length - 1];
     const blockNumber = lastLog.blockNumber;
+    // const blockNumber = BigInt(3833867);
     console.log('last blocknumber:', blockNumber);
     let fromBlock = BigInt(blockNumber) + BigInt(1);
 
@@ -46,26 +47,19 @@ async function main() {
     if (transaction) {
       console.log(`transaction: ${JSON.stringify(transaction, replacer, 2)}`);
       await prisma.transaction
-        .upsert({
-          where: { id: transaction.id },
-          create: {
+        .create({
+          data: {
             id: transaction.id,
             address: transaction.address,
             eventType: transaction.eventType,
             tags: transaction.tags,
-          },
-          update: {
-            id: transaction.id,
-            address: transaction.address,
-            eventType: transaction.eventType,
-            tags: transaction.tags,
-          },
+          }
         })
         .catch((e) => console.error('Error upserting transaction:', e.message));
     }
   }
 
-  await processCleanedLogs(data.transactions, cleanedLogs);
+  await processCleanedLogs(cleanedLogs);
 }
 function processTransactions(transactions: Transactions) {
   const eventTypes = [
@@ -102,14 +96,13 @@ function shapeData(node: Node) {
 }
 
 export async function processCleanedLogs(
-  transactions: Transactions,
   cleanedLogs: APLogs[]
 ) {
   // console.log('processCleanedLogs function called');
   //   console.log('Processing cleaned logs...');
   // console.log('transactions.edges:', transactions.edges);
+  const eventArgs = cleanedLogs.map(log => ({ args: log.args, eventName: log.eventName}));
   console.log('cleanedLogs:', `${JSON.stringify(cleanedLogs, replacer, 2)}`);
-  for (const edge of transactions.edges) {
     for (const log of cleanedLogs) {
       console.log('log:', log);
       if (!log.args) {
@@ -122,7 +115,6 @@ export async function processCleanedLogs(
           console.log(log.args);
           console.log(log.eventName);
           if (
-            edge.node.id &&
             log.args.newPress &&
             log.args.initialOwner &&
             log.args.initialLogic &&
@@ -131,9 +123,8 @@ export async function processCleanedLogs(
             typeof log.args.soulbound !== 'undefined'
           ) {
             const createPressEvent = {
-              where: { id: edge.node.id },
-              create: {
-                id: edge.node.id,
+
+              data: {
                 newPress: log.args.newPress,
                 initialOwner: log.args.initialOwner,
                 initialLogic: log.args.initialLogic,
@@ -141,12 +132,10 @@ export async function processCleanedLogs(
                 initialRenderer: log.args.initialRenderer,
                 soulbound: log.args.soulbound,
               },
-              update: {
-                id: edge.node.id,
-              },
+
             };
             try {
-              await prisma.create721Press.upsert(createPressEvent);
+              await prisma.create721Press.create(createPressEvent);
             } catch (e) {
               if (e instanceof Error) {
                 console.error(
@@ -164,20 +153,16 @@ export async function processCleanedLogs(
         case 'RendererUpdated':
           console.log(log.args);
           console.log(log.eventName);
-          if (edge.node.id && log.args.targetPress && log.args.renderer) {
+          if ( log.args.targetPress && log.args.renderer) {
             const rendererEvent = {
-              where: { id: edge.node.id },
-              create: {
-                id: edge.node.id,
+
+              data: {
                 targetPress: log.args.targetPress,
                 renderer: log.args.renderer,
-              },
-              update: {
-                id: edge.node.id,
-              },
+              }
             };
             try {
-              await prisma.rendererUpdated.upsert(rendererEvent);
+              await prisma.rendererUpdated.create(rendererEvent);
             } catch (e) {
               if (e instanceof Error) {
                 console.error(
@@ -196,27 +181,21 @@ export async function processCleanedLogs(
           console.log(log.args);
           console.log(log.eventName);
           if (
-            edge.node.id &&
             log.args.targetPress &&
             log.args.storeCaller &&
             log.args.tokenId &&
             log.args.pointer
           ) {
             const dataStoredEvent = {
-              where: { id: edge.node.id },
-              create: {
-                id: edge.node.id,
+              data: {
                 targetPress: log.args.targetPress,
                 storeCaller: log.args.storeCaller,
                 tokenId: log.args.tokenId,
                 pointer: log.args.pointer,
-              },
-              update: {
-                id: edge.node.id,
-              },
+              }
             };
             try {
-              await prisma.dataStored.upsert(dataStoredEvent);
+              await prisma.dataStored.create(dataStoredEvent);
             } catch (e) {
               if (e instanceof Error) {
                 console.error(
@@ -234,20 +213,15 @@ export async function processCleanedLogs(
         case 'LogicUpdated':
           console.log(log.args);
           console.log(log.eventName);
-          if (edge.node.id && log.args.targetPress && log.args.logic) {
+          if ( log.args.targetPress && log.args.logic) {
             const logicEvent = {
-              where: { id: edge.node.id },
-              create: {
-                id: edge.node.id,
+              data: {
                 targetPress: log.args.targetPress,
                 logic: log.args.logic,
-              },
-              update: {
-                id: edge.node.id,
-              },
+              }
             };
             try {
-              await prisma.logicUpdated.upsert(logicEvent);
+              await prisma.logicUpdated.create(logicEvent);
             } catch (e) {
               if (e instanceof Error) {
                 console.error(
@@ -265,20 +239,15 @@ export async function processCleanedLogs(
         case 'PressInitialized':
           console.log(log.args);
           console.log(log.eventName);
-          if (edge.node.id && log.args.targetPress && log.args.sender) {
+          if ( log.args.targetPress && log.args.sender) {
             const pressEvent = {
-              where: { id: edge.node.id },
-              create: {
-                id: edge.node.id,
-                targetPress: log.args.targetPress,
+              data: {
                 sender: log.args.sender,
-              },
-              update: {
-                id: edge.node.id,
-              },
+                targetPress: log.args.targetPress,
+              }
             };
             try {
-              await prisma.pressInitialized.upsert(pressEvent);
+              await prisma.pressInitialized.create(pressEvent);
             } catch (e) {
               if (e instanceof Error) {
                 console.error(
@@ -298,7 +267,7 @@ export async function processCleanedLogs(
       }
     }
   }
-}
+
 
 main()
   .catch((e) => {

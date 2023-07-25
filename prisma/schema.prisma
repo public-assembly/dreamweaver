@@ -15,45 +15,45 @@ model Transaction {
 }
 
 model RendererUpdated {
-  id          String   @id
   targetPress String
   renderer    String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
 }
 
 model PressInitialized {
-  id          String   @id
   targetPress String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   sender      String
+  Id          Int      @id @default(autoincrement())
 }
 
 model LogicUpdated {
-  id          String   @id
   targetPress String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   logic       String
+  id          Int      @id @default(autoincrement())
 }
 
 model DataStored {
-  id          String   @id
   targetPress String
   storeCaller String
   pointer     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   tokenId     BigInt
+  id          Int      @id @default(autoincrement())
 }
 
 model Create721Press {
-  id              String  @id
   newPress        String
   initialOwner    String
   initialLogic    String
   creator         String
   initialRenderer String
   soulbound       Boolean
+  id              Int     @id @default(autoincrement())
 }
