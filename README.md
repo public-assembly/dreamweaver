@@ -2,37 +2,49 @@
 
 Onchain event listener processing Assembly Press protocol events and posting them to Arweave.
 
-## Prerequisites 
+## Prerequisites
 
-make sure you have Node.js installed on your local system. If not, download and install it from the official [Node.js website](https://nodejs.org/en/download/).
+Ensure you have Node.js installed. If not, download and install it from the official [Node.js website](https://nodejs.org/en/download/).
 
-## Installation
+## Local Development
 
 1. Clone the repo:
+
 ```
-git clone [Your repository URL here]
+git clone [https://github.com/public-assembly/dreamweaver.git]
 ```
-2. Go into the repository:
+
+2. Navigate into the repository:
+
 ```
-cd [Your repository directory]
+cd [your repository directory]
 ```
-3. Install the dependencies:
+
+3. Install dependencies:
+
 ```
 pnpm install
 ```
-4. Setup your environment variables by creating a `.env` file at the root of your project. You need to set up your database url in the following format:
+
+4. Setup your environment variables by creating a `.env` file at the root of your project. Refer to the `env.example` file for guidance on configuring environment variables.
+
+PRIVATE_KEY='' (for funding Bundlr)
+
+ALCHEMY_KEY=''
+ETHERSCAN_API_KEY=''
+# You can change `OWNER` to any address and the script will be able to populate the event tables, but not the Transaction table. Refer to `prisma.schema` to see Transaction table and other Event tables. Notice that Bundlr will only keep track of the transactions that were funded by the address corresponding to the private key you provided.
+OWNER='' 
+# Address of the contract you want to track. We're currently using `ERC721_PRESS_FACTORY`. In theory you can use any address but you will have to adjust the event information and ABI accordingly.
+CONTRACT_ADDRESS=''
+
+
+5. Setup your database url in the following format:
+
 ```
 DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/DATABASE"
 ```
+
 Replace `USER`, `PASSWORD`, and `DATABASE` with your PostgreSQL username, password, and database name, respectively.
-
-also make sure you include:
-
-ALCHEMY_SEPOLIA_KEY=
-ETHERSCAN_API_KEY=
-PRIVATE_KEY='' (for funding bundlr with eth)
-OWNER='' (you can change OWNER to any address and the script will be able to populate the event tables, but not the Transaction table. Refer to prisma.schema to see Transaction table and other Event Tables. Notice that bundlr will only keep track of the transactions that were funded by the address corresponding to the private key you provided.)
-CONTRACT_ADDRESS='' (address of the contract you want to track. i am currently using ERC721_PRESS_FACTORY. in theory you can use any address but you will have to adjust the event information and abi accordingly. )
 
 ## Running
 
@@ -46,42 +58,34 @@ npx prisma generate -- schema== prisma/schema.prisma
 npx prisma migrate dev --name init
 npx prisma migrate deploy
 
-run script: 
-pnpm ts-node processAndUpload.ts
-
-
 ## Files
 
 Here is a brief overview of the important files and their functions:
 
-- `processAndUpload.ts`: this is the main script of the application. It connects to a wallet, fetches the account balance, retrieves events, and processes new transactions from the Assembly Press protocol events, storing the results in a database via Prisma. It shapes the data according to each event type and creates or updates records in the database. If a record exists, it updates it; otherwise, it creates a new one.
+- `processAndUpload.ts`: this is the main script of the application. It connects to a wallet, fetches the account balance, retrieves events, and processes new events from the Assembly Press protocol, and finally stores the results in a database via Prisma. It shapes the data according to each event type and creates or updates records in the database. If a record exists, it updates it, otherwise, it creates a new one.
 
-- `bundlrInit.ts` : initializes bundlr 
+- `bundlrInit.ts` : initializes a Bundlr client
 
-- `bundlrAction.ts`:  handles Bundlr related actions: initializing Bundlr and Apollo client, creating metadata for Bundlr uploads, uploading logs to Arweave, fetching the last block from the last event in a transaction hash ID, and uploading log objects.
+- `bundlrAction.ts`: handles Bundlr related actions: initializing Bundlr and Apollo client, creating metadata for Bundlr uploads, uploading logs to Arweave, fetching the last block from the last event in a transaction hash ID, and uploading log objects.
 
 - `schema.prisma`: contains the database schema for the Prisma client. It describes the `User` and `Transaction` models.
 
-- `fetchEvents.ts`:  fetches logs for specific events occurring in Ethereum smart contracts, such as CREATE_PRESS and DATA_STORED, using the viem client. It retrieves the logs within a certain block range and uploads the logs to Arweave.
+- `fetchEvents.ts`: fetches logs for specific events occurring in Ethereum smart contracts, such as `CREATE_PRESS` and `DATA_STORED`, using viem. It retrieves the logs within a certain block range and uploads the logs to Arweave.
 
 - `getEvents.ts`: fetches events from Ethereum. It uses a list of event objects, each with its respective ABI and address, to fetch logs from the Ethereum blockchain. It first retrieves the current block number and the last block where an event was found. It then fetches logs in chunks of 10,000 blocks (adjustable), starting from the last block where an event was found to the current block. If no logs are found, it returns an empty JSON object. If logs are found, they are added to an array of all logs, converted to a JSON string, and then uploaded to Arweave.
 
-- `transactionInterfaces.ts` : defines interface for Transaction[]
+- `client.ts` : instantiates a viem client
 
-- `viem.ts` : sets viem client 
+- `apolloClient.ts` : instantiates an Apollo client
 
-- `apolloClient.ts` : sets apollo client 
+- `events.ts`: contains a set of predefined events that the application might use or trigger
 
-- `events.ts`: contains a set of predefined events that the application might use or trigger.
+- `addresses.ts`: contains a set of predefined addresses
 
-- `addresses.ts`: contains a set of predefined  addresses using the `viem` library. 
+- `replacer.ts`: a helper function that converts any bigint values to strings when working with JSONs
 
-- `replacer.ts`: a helper function that converts any `bigint` values to strings when working with JSON.
+- `newTransaction.ts`: a GraphQL query for returning a set of event tags made by a given owner
 
-- `newTransaction.ts`: a graphQL query for returning a set of event tags made by a hardcoded owner
+- `types.ts`: defines the `EventObject` type
 
-- `types.ts`: sets type for EventObjects[]
-
-
-
-
+- `transactionInterfaces.ts` : defines the `Transaction` interface among others
