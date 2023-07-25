@@ -1,4 +1,4 @@
-import { Log } from 'viem';
+import { type Log } from 'viem';
 
 export interface Tag {
   name: string;
@@ -27,7 +27,7 @@ export interface APLogs extends Log {
   args?: {
     targetPress?: string;
     storeCaller?: string;
-    tokenId?: bigInt;
+    tokenId?: bigint;
     pointer?: string;
     logic?: string;
     sender?: string;

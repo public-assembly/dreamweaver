@@ -1,8 +1,7 @@
-import { viemClient } from '../viem';
+import { viemClient } from '../viem/client';
 import { EventObject } from '../types';
 
-
-// function to fetch logs for given blocks and event objects
+// fetch logs for given blocks and event objects
 export async function fetchLogs(
   fromBlock: bigint,
   toBlock: bigint,
@@ -22,15 +21,14 @@ export async function fetchLogs(
   );
 
   console.log(
-    `Filter created for blocks ${fromBlock} to ${toBlock}, getting logs...`
+    `Filter created for block ${fromBlock} to ${toBlock}, getting logs...`
   );
 
   // fetch logs for each filter
   const logs = await Promise.all(
     filters.map((filter, index) =>
       viemClient
-        // TODO: type this as 'Filter' once viem has been updated to export that type
-        .getFilterLogs({ filter: filter as any })
+        .getFilterLogs({ filter: filter })
         .then((logs) =>
           logs.map((log) => ({ ...log, eventName: eventObjects[index].event }))
         )
