@@ -1,6 +1,6 @@
   import { getLastBlock, uploadLogs } from '../bundlr/bundlrActions';
-  import { ERC721PressFactoryAbi, CurationDatabaseV1Abi } from '../abi';
-  import { sepolia, events } from '../constants';
+  import { ERC721PressFactoryAbi, CurationDatabaseV1Abi,  } from '../abi';
+  import { sepolia, events, optimism_goerli } from '../constants';
   import { EventObject } from '../types';
   import { replacer } from '../utils';
   import { viemClient } from '../viem/client';
@@ -8,6 +8,7 @@
   import { Transactions, APLogs } from '../interfaces/transactionInterfaces';
   import { processCleanedLogs } from '../processAndUpload';
   import { getTransactions, transformTags } from '../prisma';
+  import { AP721DatabaseV1Abi } from '../abi/AP721DatabaseV1Abi';
   
   function convertArgs(args: object): APLogs['args'] | undefined {
     const convertedArgs: Partial<APLogs['args']> = {};
@@ -32,44 +33,85 @@
   
     const allLogs = [];
   
+    // SEPOLIA
     // define event objects for which to fetch logs
-    const eventObjects: EventObject[] = [
-      {
-        event: events.CREATE_PRESS,
-        abi: ERC721PressFactoryAbi,
-        address: sepolia.ERC721_PRESS_FACTORY,
-      },
-      {
-        event: events.DATA_STORED,
-        abi: CurationDatabaseV1Abi,
-        address: sepolia.CURATION_DATABASE_V1,
-      },
-      {
-        event: events.DATA_REMOVED,
-        abi: CurationDatabaseV1Abi,
-        address: sepolia.CURATION_DATABASE_V1,
-      },
-      {
+    // const eventObjects: EventObject[] = [
+    //   {
+    //     event: events.CREATE_PRESS,
+    //     abi: ERC721PressFactoryAbi,
+    //     address: sepolia.ERC721_PRESS_FACTORY,
+    //   },
+    //   {
+    //     event: events.DATA_STORED,
+    //     abi: CurationDatabaseV1Abi,
+    //     address: sepolia.CURATION_DATABASE_V1,
+    //   },
+    //   {
+    //     event: events.DATA_REMOVED,
+    //     abi: CurationDatabaseV1Abi,
+    //     address: sepolia.CURATION_DATABASE_V1,
+    //   },
+    //   {
+    //     event: events.DATA_OVERWRITTEN,
+    //     abi: CurationDatabaseV1Abi,
+    //     address: sepolia.CURATION_DATABASE_V1,
+    //   },
+    //   {
+    //     event: events.LOGIC_UPDATED,
+    //     abi: CurationDatabaseV1Abi,
+    //     address: sepolia.CURATION_DATABASE_V1,
+    //   },
+    //   {
+    //     event: events.PRESS_INITIALIZED,
+    //     abi: CurationDatabaseV1Abi,
+    //     address: sepolia.CURATION_DATABASE_V1,
+    //   },
+    //   {
+    //     event: events.RENDERER_UPDATED,
+    //     abi: CurationDatabaseV1Abi,
+    //     address: sepolia.CURATION_DATABASE_V1,
+    //   },
+    // ];
+
+    // OPTIMISM GOERLI
+
+    const eventObjects: EventObject[] = [ 
+    {
         event: events.DATA_OVERWRITTEN,
-        abi: CurationDatabaseV1Abi,
-        address: sepolia.CURATION_DATABASE_V1,
+        abi: AP721DatabaseV1Abi ,
+        address: optimism_goerli.AP721DATABASEV1,
       },
-      {
+      {       
+        event: events.DATA_REMOVED,
+        abi: AP721DatabaseV1Abi,
+        address: optimism_goerli.AP721DATABASEV1,
+
+      },
+      {       
+        event: events.DATA_STORED,
+        abi: AP721DatabaseV1Abi,
+        address: optimism_goerli.AP721DATABASEV1,
+
+      },
+      {       
         event: events.LOGIC_UPDATED,
-        abi: CurationDatabaseV1Abi,
-        address: sepolia.CURATION_DATABASE_V1,
+        abi: AP721DatabaseV1Abi,
+        address: optimism_goerli.AP721DATABASEV1,
+
       },
-      {
-        event: events.PRESS_INITIALIZED,
-        abi: CurationDatabaseV1Abi,
-        address: sepolia.CURATION_DATABASE_V1,
-      },
-      {
+      {       
         event: events.RENDERER_UPDATED,
-        abi: CurationDatabaseV1Abi,
-        address: sepolia.CURATION_DATABASE_V1,
+        abi: AP721DatabaseV1Abi,
+        address: optimism_goerli.AP721DATABASEV1,
+
       },
-    ];
+      {       
+        event: events.SETUP_AP721,
+        abi: AP721DatabaseV1Abi,
+        address: optimism_goerli.AP721DATABASEV1,
+
+      },
+    ]
   
     // fetch current block number
     const currentBlock = await viemClient.getBlockNumber();

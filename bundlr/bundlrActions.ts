@@ -31,12 +31,14 @@ export async function getLastBlock(eventName: string) {
     variables: { owner: env.OWNER, eventName: eventName },
   });
 
-  const etherscanApiUrl = `https://api-sepolia.etherscan.io/api?module=contract&action=getcontractcreation&contractaddresses=${env.CONTRACT_ADDRESS}&apikey=${env.ETHERSCAN_API_KEY}`;
+  // const etherscanApiUrl = `https://api-sepolia.etherscan.io/api?module=contract&action=getcontractcreation&contractaddresses=${env.CONTRACT_ADDRESS}&apikey=${env.ETHERSCAN_API_KEY}`;
+  const optimism_goerliApiUrl = `https://api-goerli-optimistic.etherscan.io/api?module=contract&action=getcontractcreation&contractaddresses=${env.CONTRACT_ADDRESS}&apikey=${env.OPTIMISM_GOERLI_API_KEY}`
 
   // if no event transactions are found, return the block number of when the contract was created
   if (data.transactions.edges.length === 0) {
     // get contract creation transaction
-    const contractCreationTxn = await getContractCreationTxn(etherscanApiUrl);
+    // const contractCreationTxn = await getContractCreationTxn(etherscanApiUrl);
+    const contractCreationTxn = await getContractCreationTxn(optimism_goerliApiUrl);
 
     if (
       !contractCreationTxn ||

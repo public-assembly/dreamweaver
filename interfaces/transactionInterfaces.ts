@@ -23,21 +23,41 @@ export interface GraphQLResponse {
   transactions: Transactions;
 }
 
+// sepolia
+// export interface APLogs extends Log {
+//   args?: {
+//     targetPress?: string;
+//     storeCaller?: string;
+//     tokenId?: bigint;
+//     pointer?: string;
+//     logic?: string;
+//     sender?: string;
+//     renderer?: string;
+//     newPress?: string;
+//     initialOwner?: string;
+//     initialLogic?: string;
+//     creator?: string;
+//     initialRenderer?: string;
+//     soulbound?: boolean;
+//   };
+//   eventName: string;
+// }
+
+// optimism goerli
+
 export interface APLogs extends Log {
   args?: {
-    targetPress?: string;
-    storeCaller?: string;
+    ap721?: string;
+    sender?: string;
+    initialOwner?: string;
+    logic?: string;
+    renderer?: string;
+    factory?: string;
+    target?: string;
+    store?: string;
     tokenId?: bigint;
     pointer?: string;
-    logic?: string;
-    sender?: string;
-    renderer?: string;
-    newPress?: string;
-    initialOwner?: string;
-    initialLogic?: string;
-    creator?: string;
-    initialRenderer?: string;
-    soulbound?: boolean;
-  };
+  }
   eventName: string;
 }
+

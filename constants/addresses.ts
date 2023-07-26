@@ -9,3 +9,7 @@ export const sepolia = {
   CURATION_DATABASE_V1: '0xbfa24Fab9aC17D5482EF375ed1ac54fA8A175B49' as Hex,
   CURATION_RENDERER_V1: '0xBBEAf40C931cd3b92235A4B25c5025f07fDCA9C0' as Hex,
 };
+
+export const optimism_goerli = {
+ AP721DATABASEV1: '0xFE16d7a18A1c00e8f07Ca11A1d29e69A69d67d7b' as Hex,
+}
