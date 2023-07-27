@@ -4,7 +4,6 @@
   "description": "Onchain event listener processing Assembly Press protocol events and posting them to Arweave.",
   "main": "index.js",
   "scripts": {
-    "build": "tsc --noEmit",
     "start": "ts-node processAndUpload.ts"
   },
   "keywords": [],
