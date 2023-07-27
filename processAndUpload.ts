@@ -1,14 +1,12 @@
 import { getEvents } from './fetch';
 import { getBalance } from './bundlr/getBalance';
 import { getTransactions } from './prisma/getTransactions';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from './prisma/prismaClient';
 import { Transactions, APLogs, Node } from './interfaces/transactionInterfaces';
 import { apolloClient } from './apollo/apolloClient';
 import { NEW_TRANSACTIONS_QUERY } from './gql';
 import { replacer } from './utils';
 import env from './services/env';
-
-const prisma = new PrismaClient();
 
 async function main() {
   await getBalance();
