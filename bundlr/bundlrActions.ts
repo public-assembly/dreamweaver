@@ -4,6 +4,7 @@ import { apolloClient } from '../apollo/apolloClient';
 import { LAST_EVENT_QUERY } from '../gql';
 import { viemClient } from '../viem/client';
 import { GraphQLResponse, APLogs } from '../interfaces/transactionInterfaces';
+import fetch from 'node-fetch';
 import env from '../services/env';
 
 // create metadata tags for Bundlr uploads that will help us identify our uploads later on

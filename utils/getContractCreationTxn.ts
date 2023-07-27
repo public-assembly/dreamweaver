@@ -1,3 +1,5 @@
+import fetch from 'node-fetch'
+
 export async function getContractCreationTxn(etherscanApiUrl: string) {
   try {
     const response = await fetch(etherscanApiUrl);
@@ -11,5 +13,6 @@ export async function getContractCreationTxn(etherscanApiUrl: string) {
       'An error occurred while fetching contract creation transaction:',
       error
     );
+    // return {}
   }
 }
