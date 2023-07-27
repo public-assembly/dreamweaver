@@ -3,6 +3,7 @@ import { bundlr } from './bundlrInit';
 import { apolloClient } from '../apollo/apolloClient';
 import { LAST_EVENT_QUERY } from '../gql';
 import { viemClient } from '../viem/client';
+import fetch from 'node-fetch';
 import { GraphQLResponse, APLogs } from '../interfaces/transactionInterfaces';
 import env from '../services/env';
 

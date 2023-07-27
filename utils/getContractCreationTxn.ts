@@ -1,3 +1,5 @@
+import fetch from "node-fetch";
+
 export async function getContractCreationTxn(etherscanApiUrl: string) {
   try {
     const response = await fetch(etherscanApiUrl);
