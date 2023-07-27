@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc --noEmit",
-    "start": "ts-node processAndUpload.ts"
+    "start": "ts-node processAndUpload"
   },
   "keywords": [],
   "author": "",
