@@ -162,20 +162,21 @@
       const logsJson = JSON.stringify(cleanedLogs, replacer, 2); // Changed allLogs to cleanedLogs
       console.log('Returning logs...');
   
-      const response = await uploadLogs(cleanedLogs, eventObjects[0].event); // Changed allLogs to cleanedLogs
+      // const response = await uploadLogs(cleanedLogs, eventObjects[0].event); 
+      // Changed allLogs to cleanedLogs
   
       // how we target log.args
       // console.log(`cleaned logs args and event names: ${JSON.stringify(cleanedLogs.map(log => ({args: log.args, eventName: log.eventName})), replacer, 2)}`)
-      const transactionsArray = await getTransactions();
+      // const transactionsArray = await getTransactions();
   
-      const transactions: Transactions = {
-        edges: transactionsArray.map((transaction) => ({
-          node: {
-            ...transaction,
-            tags: transaction.tags ? transformTags(transaction.tags) : [], // Check if transaction.tags is null
-          },
-        })),
-      };
+      // const transactions: Transactions = {
+      //   edges: transactionsArray.map((transaction) => ({
+      //     node: {
+      //       ...transaction,
+      //       tags: transaction.tags ? transformTags(transaction.tags) : [], // Check if transaction.tags is null
+      //     },
+      //   })),
+      // };
   
       await processCleanedLogs(cleanedLogs);
   
