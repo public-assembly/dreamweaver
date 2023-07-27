@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Transaction {
+  id        String @id
+  address   String
+  eventType String
+  tags      Json
+}
+
+model SetupAP721 {
+  id           Int      @id @default(autoincrement())
+  ap721        String
+  sender       String
+  initialOwner String
+  logic        String
+  renderer     String
+  factory      String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model DataStored {
+  id        Int      @id @default(autoincrement())
+  target    String
+  tokenId   BigInt
+  pointer   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sender    String
+}
+
+model DataOverwritten {
+  id        Int      @id @default(autoincrement())
+  target    String
+  sender    String
+  pointer   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tokenId   BigInt
+}
+
+model DataRemoved {
+  id        Int      @id @default(autoincrement())
+  target    String
+  sender    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tokenId   BigInt
+}
+
+model LogicUpdated {
+  id        Int      @id @default(autoincrement())
+  target    String
+  logic     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RendererUpdated {
+  id        Int      @id @default(autoincrement())
+  target    String
+  renderer  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
