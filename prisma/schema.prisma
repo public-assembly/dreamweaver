@@ -27,13 +27,13 @@ model SetupAP721 {
 }
 
 model DataStored {
-  id        Int      @id @default(autoincrement())
-  target    String
-  tokenId   BigInt
   pointer   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  tokenId   BigInt
+  id        Int      @id @default(autoincrement())
   sender    String
+  target    String
 }
 
 model DataOverwritten {
@@ -56,17 +56,17 @@ model DataRemoved {
 }
 
 model LogicUpdated {
-  id        Int      @id @default(autoincrement())
-  target    String
-  logic     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  logic     String
+  id        Int      @id @default(autoincrement())
+  target    String
 }
 
 model RendererUpdated {
-  id        Int      @id @default(autoincrement())
-  target    String
   renderer  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  target    String
 }
