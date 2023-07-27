@@ -53,7 +53,7 @@ async function main() {
             tags: transaction.tags,
           }
         })
-        .catch((e) => console.error('Error upserting transaction:', e.message));
+        .catch((e: Error) => console.error('Error upserting transaction:', e.message));
     }
   }
 
