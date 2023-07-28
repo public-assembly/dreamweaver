@@ -23,23 +23,23 @@ async function main() {
   });
   const processedTransactions = processTransactions(data.transactions);
 
-  for (const transaction of processedTransactions) {
-    if (transaction) {
-      console.log(`transaction: ${JSON.stringify(transaction, replacer, 2)}`);
-      await prisma.transaction
-        .create({
-          data: {
-            id: transaction.id,
-            address: transaction.address,
-            eventType: transaction.eventType,
-            tags: transaction.tags,
-          }
-        })
-        .catch((e: Error) => console.error('Error upserting transaction:', e.message));
-    }
-  }
+  // for (const transaction of processedTransactions) {
+  //   if (transaction) {
+  //     console.log(`transaction: ${JSON.stringify(transaction, replacer, 2)}`);
+  //     await prisma.transaction
+  //       .create({
+  //         data: {
+  //           id: transaction.id,
+  //           address: transaction.address,
+  //           eventType: transaction.eventType,
+  //           tags: transaction.tags,
+  //         }
+  //       })
+  //       .catch((e: Error) => console.error('Error upserting transaction:', e.message));
+  //   }
+  // }
 
-  await processCleanedLogs(cleanedLogs);
+  // await processCleanedLogs(cleanedLogs);
 }
 // optimism goerli 
 function processTransactions(transactions: Transactions) {

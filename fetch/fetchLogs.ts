@@ -1,15 +1,14 @@
 import { viemClient } from '../viem/client';
-import { EventObject } from '../types';
+import { availableEventObjects } from './utils/availableEventObjects';
 
 // fetch logs for given blocks and event objects
 export async function fetchLogs(
   fromBlock: bigint,
-  toBlock: bigint,
-  eventObjects: EventObject[]
+  toBlock: bigint
 ) {
   // create event filters for each eventObject
   const filters = await Promise.all(
-    eventObjects.map((eventObject) =>
+    availableEventObjects.map((eventObject) =>
       viemClient.createContractEventFilter({
         abi: eventObject.abi,
         address: eventObject.address,
@@ -30,7 +29,7 @@ export async function fetchLogs(
       viemClient
         .getFilterLogs({ filter: filter })
         .then((logs) =>
-          logs.map((log) => ({ ...log, eventName: eventObjects[index].event }))
+          logs.map((log) => ({ ...log, eventName: availableEventObjects[index].event }))
         )
     )
   );
