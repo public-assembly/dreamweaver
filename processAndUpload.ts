@@ -1,5 +1,5 @@
-import { getEvents } from './fetch';
-import { getBalance } from './bundlr/getBalance';
+import { getEvents } from './fetch/getEvents';
+import { getBalance } from './bundlr/utils/getBalance';
 import { getTransactions } from './prisma/getTransactions';
 import { prisma } from './prisma/prismaClient';
 import { Transactions, APLogs, Node } from './interfaces/transactionInterfaces';
@@ -16,24 +16,6 @@ async function main() {
 
   const result = await getEvents();
   const { cleanedLogs } = result;
-
-  async function getFromBlock() {
-    if (typeof result === 'string') {
-      console.log('No new logs to upload.');
-      return;
-    }
-
-    const logs = JSON.parse(result.logsJson);
-    const lastLog = logs[logs.length - 1];
-    const blockNumber = lastLog.blockNumber;
-    // const blockNumber = BigInt(3833867);
-    console.log('last blocknumber:', blockNumber);
-    let fromBlock = BigInt(blockNumber) + BigInt(1);
-
-    console.log('Next fromBlock:', fromBlock);
-  }
-
-  await getFromBlock();
 
   const { data } = await apolloClient.query({
     query: NEW_TRANSACTIONS_QUERY,
@@ -59,19 +41,6 @@ async function main() {
 
   await processCleanedLogs(cleanedLogs);
 }
-
-//sepolia
-// function processTransactions(transactions: Transactions) {
-//   const eventTypes = [
-//     'Create721Press',
-//     'DataStored',
-//     'DataRemoved',
-//     'DataOverwritten',
-//     'LogicUpdated',
-//     'PressInitialized',
-//     'RendererUpdated',
-//   ];
-
 // optimism goerli 
 function processTransactions(transactions: Transactions) {
   const eventTypes = [
@@ -84,7 +53,7 @@ function processTransactions(transactions: Transactions) {
   ];
 
   return transactions.edges.map((edge) => {
-    const eventTag = edge.node.tags.find((tag) => tag.name === 'Press Events');
+    const eventTag = edge.node.tags.find((tag) => tag.name === "Press Events - Optimism-Goerli v0.1");
     if (!eventTag || !eventTypes.includes(eventTag.value)) {
       return null;
     }
@@ -101,189 +70,15 @@ function shapeData(node: Node) {
   return {
     id: node.id,
     address: node.address,
-    eventType: tags['Press Events'],
+    eventType: tags["Press Events - Optimism-Goerli v0.1"],
     tags,
   };
 }
 
-// sepolia
-// export async function processCleanedLogs(
-//   cleanedLogs: APLogs[]
-// ) {
-//   // console.log('processCleanedLogs function called');
-//   //   console.log('Processing cleaned logs...');
-//   // console.log('transactions.edges:', transactions.edges);
-//   const eventArgs = cleanedLogs.map(log => ({ args: log.args, eventName: log.eventName}));
-//   console.log('cleanedLogs:', `${JSON.stringify(cleanedLogs, replacer, 2)}`);
-//     for (const log of cleanedLogs) {
-//       console.log('log:', log);
-//       if (!log.args) {
-//         console.log(`Skipping log due to missing args: ${JSON.stringify(log)}`);
-//         continue;
-//       }
-//       console.log(`Processing log with event name: ${log.eventName}`);
-//       switch (log.eventName) {
-//         case 'Create721Press':
-//           console.log(log.args);
-//           console.log(log.eventName);
-          // if (
-          //   log.args.newPress &&
-          //   log.args.initialOwner &&
-          //   log.args.initialLogic &&
-          //   log.args.creator &&
-          //   log.args.initialRenderer &&
-          //   typeof log.args.soulbound !== 'undefined'
-          // ) {
-//             const createPressEvent = {
-
-//               data: {
-//                 newPress: log.args.newPress,
-//                 initialOwner: log.args.initialOwner,
-//                 initialLogic: log.args.initialLogic,
-//                 creator: log.args.creator,
-//                 initialRenderer: log.args.initialRenderer,
-//                 soulbound: log.args.soulbound,
-//               },
-
-//             };
-//             try {
-//               await prisma.create721Press.create(createPressEvent);
-//             } catch (e) {
-//               if (e instanceof Error) {
-//                 console.error(
-//                   'Error upserting Create721Press event:',
-//                   e.message
-//                 );
-//               } else {
-//                 console.error(
-//                   'An error occurred while upserting Create721Press event'
-//                 );
-//               }
-//             }
-//           }
-//           break;
-//         case 'RendererUpdated':
-//           console.log(log.args);
-//           console.log(log.eventName);
-//           if ( log.args.targetPress && log.args.renderer) {
-//             const rendererEvent = {
-
-//               data: {
-//                 targetPress: log.args.targetPress,
-//                 renderer: log.args.renderer,
-//               }
-//             };
-//             try {
-//               await prisma.rendererUpdated.create(rendererEvent);
-//             } catch (e) {
-//               if (e instanceof Error) {
-//                 console.error(
-//                   'Error upserting Create721Press event:',
-//                   e.message
-//                 );
-//               } else {
-//                 console.error(
-//                   'An error occurred while upserting Create721Press event'
-//                 );
-//               }
-//             }
-//           }
-//           break;
-//         case 'DataStored':
-//           console.log(log.args);
-//           console.log(log.eventName);
-//           if (
-//             log.args.targetPress &&
-//             log.args.storeCaller &&
-//             log.args.tokenId &&
-//             log.args.pointer
-//           ) {
-//             const dataStoredEvent = {
-//               data: {
-//                 targetPress: log.args.targetPress,
-//                 storeCaller: log.args.storeCaller,
-//                 tokenId: log.args.tokenId,
-//                 pointer: log.args.pointer,
-//               }
-//             };
-//             try {
-//               await prisma.dataStored.create(dataStoredEvent);
-//             } catch (e) {
-//               if (e instanceof Error) {
-//                 console.error(
-//                   'Error upserting Create721Press event:',
-//                   e.message
-//                 );
-//               } else {
-//                 console.error(
-//                   'An error occurred while upserting Create721Press event'
-//                 );
-//               }
-//             }
-//           }
-//           break;
-//         case 'LogicUpdated':
-//           console.log(log.args);
-//           console.log(log.eventName);
-//           if ( log.args.targetPress && log.args.logic) {
-//             const logicEvent = {
-//               data: {
-//                 targetPress: log.args.targetPress,
-//                 logic: log.args.logic,
-//               }
-//             };
-//             try {
-//               await prisma.logicUpdated.create(logicEvent);
-//             } catch (e) {
-//               if (e instanceof Error) {
-//                 console.error(
-//                   'Error upserting Create721Press event:',
-//                   e.message
-//                 );
-//               } else {
-//                 console.error(
-//                   'An error occurred while upserting Create721Press event'
-//                 );
-//               }
-//             }
-//           }
-//           break;
-//         case 'PressInitialized':
-//           console.log(log.args);
-//           console.log(log.eventName);
-//           if ( log.args.targetPress && log.args.sender) {
-//             const pressEvent = {
-//               data: {
-//                 sender: log.args.sender,
-//                 targetPress: log.args.targetPress,
-//               }
-//             };
-//             try {
-//               await prisma.pressInitialized.create(pressEvent);
-//             } catch (e) {
-//               if (e instanceof Error) {
-//                 console.error(
-//                   'Error upserting Create721Press event:',
-//                   e.message
-//                 );
-//               } else {
-//                 console.error(
-//                   'An error occurred while upserting Create721Press event'
-//                 );
-//               }
-//             }
-//           }
-//           break;
-//         default:
-//           console.log(`Unknown event type: ${log.eventName}`);
-//       }
-//     }
-//   }
-
 // optimism goerli
 export async function processCleanedLogs(cleanedLogs: APLogs[]) {
   for (const log of cleanedLogs) {
-    console.log('log:', log);
+    // console.log('log:', log);
     if (!log.args) {
       console.log(`Skipping log due to missing args: ${JSON.stringify(log)}`);
       continue;
@@ -291,6 +86,7 @@ export async function processCleanedLogs(cleanedLogs: APLogs[]) {
     console.log(`Processing log with event name: ${log.eventName}`);
     try {
       switch (log.eventName) {
+        // leave create 
         case 'SetupAP721':
           if (
             log.args.ap721  &&
@@ -312,6 +108,7 @@ export async function processCleanedLogs(cleanedLogs: APLogs[]) {
             });
           }
           break;
+          // upsert 
         case 'DataStored':
           if (
             log.args.target &&
@@ -399,9 +196,6 @@ export async function processCleanedLogs(cleanedLogs: APLogs[]) {
     }
   }
 }
-
-
-
 
 main()
   .catch((e) => {

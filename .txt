@@ -1,0 +1,133 @@
+
+1. getFromBlock // getLastBlock = getStartingBlock
+    * query bundlr api to see if events exist 
+    * if no events 
+      * get contract creation transaction 
+    * if events 
+        * find most recent transaction and get blockNumber 
+        * grab To Block and is +1 FromBlock
+
+
+
+
+
+
+2. FETCH RAW LOGS: chunk blocks to look for events emitted from our contract via Filter since last event block 
+    * create range which is either fromBlock fetched in point 1 or contract Creation event
+        * the current Block from viem 
+        
+3. once we have raw logs we process them via cleanedLogs
+    * we want the logs to have args + topics 
+    * FOR EACH EVENT. GET DATA, DECODE TOPICS, PASS ARGS + DECODED TOPICS 
+    https://viem.sh/docs/contract/decodeEventLog.html#decodeeventlog
+
+
+
+
+
+4. uploadLogs to bundlr
+    * upload semi cleaned
+    * receive upload logs link
+    * one job results in one transaction
+
+5. data that we just processed we prepare for prisma.
+    * what is the event?
+        * prisma flow to put where its posed to be
+3 Tables:
+    * RAW Transactions
+    * AP721 TABLE + 6 columns + SLOTS STORED || SLOTS REMOVED || SLOTS ACTIVE ( STORED ( MINT) - REMOVED (BURN) = ACTIVE)
+        * OWNER LOGIC RENDERER = [] scalar .push new values
+
+    * DATA // TOKEN INFO 
+    AP721 will be token numbers storing an array of pointers 
+        * total stored ( take incremented value and use that as the cell to insert pointer)
+        * total removed 
+
+    FOR EVERY TOKEN: 
+    * THIS IS WHATS IN THE CELL 
+
+    CREATE AN OBJECT {
+        POINTER: []
+        EXISTS: TRUE/FALSE
+    }
+{
+  pointerHistory : [
+    address(1),
+    addresss(2),
+    address(3)
+  ],
+  exists: 0/1
+}
+token not minted yet
+[address(0), 0]
+token minted
+[0x123, 1]
+token burned
+[0x123, 0]
+/*
+
+    * 1 Table 
+    ap721       
+    args:      
+    { ap721:            
+      sender: 
+      renderer: 
+      logic: 
+      factory
+    }
+    topics: 
+    {initialowner: 
+     etc. 
+    }
+
+RAW LOGS: 
+
+  [
+    {
+      address: '0xfe16d7a18a1c00e8f07ca11a1d29e69a69d67d7b',
+      blockHash: '0xccff545b21a4130b49a976938f8dbafa749b9d9c48d304d0cf37bdd909680c4a',
+      blockNumber: 12534060n,
+      data: '0x00000000000000000000000048f99bb99f6e3de4d9c53158b74c3a40b1aa7a01',
+      logIndex: 0,
+      removed: false,
+      topics: [Array],
+      transactionHash: '0x21eaf810dbffa9cf717dad7ba3bae47633f7412966de7ad75dc89560c57c6f99',
+      transactionIndex: 1,
+      args: [Object],
+      eventName: 'DataOverwritten'
+    }
+  ],
+
+  CLEANED LOGS: 
+
+    [
+    {
+      address: '0xfe16d7a18a1c00e8f07ca11a1d29e69a69d67d7b',
+      blockHash: '0xccff545b21a4130b49a976938f8dbafa749b9d9c48d304d0cf37bdd909680c4a',
+      blockNumber: 12534060n,
+      data: '0x00000000000000000000000048f99bb99f6e3de4d9c53158b74c3a40b1aa7a01',
+      topics: [Array],
+      transactionHash: '0x21eaf810dbffa9cf717dad7ba3bae47633f7412966de7ad75dc89560c57c6f99',
+      args: [Object],
+      eventName: 'DataOverwritten'
+    }
+  ],
+
+_________________
+
+  {
+  jobAnalsysis: {
+    fromBlock: 
+    toBlock: 
+
+  },
+  logs: {
+    allEvents: [ofAllObjects]
+  }
+}
+
+6. CRON JOB 
+
+
+HOW TO DECODE TOPICS. 
+
