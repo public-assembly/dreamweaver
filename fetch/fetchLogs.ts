@@ -34,5 +34,7 @@ export async function fetchLogs(
         )
     )
   );
+  // console.log("raw logs", logs)
+  // console.log("raw logs", logs.flat())
   return logs.flat();
 }

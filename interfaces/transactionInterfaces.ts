@@ -45,7 +45,32 @@ export interface GraphQLResponse {
 
 // optimism goerli
 
-export interface APLogs extends Log {
+// export interface APLogs extends Log {
+//   args?: {
+//     ap721?: string;
+//     sender?: string;
+//     initialOwner?: string;
+//     logic?: string;
+//     renderer?: string;
+//     factory?: string;
+//     target?: string;
+//     store?: string;
+//     tokenId?: bigint;
+//     pointer?: string;
+//   }
+//   eventName: string;
+// }
+
+export interface APLogs {
+  address: string;
+  blockHash: string;
+  blockNumber: bigint;
+  data: string;
+  logIndex?: number;
+  removed?: boolean;
+  topics: string[];
+  transactionHash: string;
+  transactionIndex?: number;
   args?: {
     ap721?: string;
     sender?: string;
@@ -54,10 +79,10 @@ export interface APLogs extends Log {
     renderer?: string;
     factory?: string;
     target?: string;
-    store?: string;
     tokenId?: bigint;
     pointer?: string;
-  }
+  };
   eventName: string;
 }
+
 

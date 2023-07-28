@@ -1,4 +1,4 @@
-import { bundlr } from './bundlrInit';
+import { bundlr } from '../bundlrInit';
 
 export async function getBalance() {
   console.log('Connected wallet address:', bundlr.address);
