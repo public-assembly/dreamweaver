@@ -1,5 +1,6 @@
 import { fetchLogs } from './fetchLogs'
-import { availableEventObjects, convertLog, getLastBlockNum } from './utils'
+import { availableEventObjects, convertLog } from './utils'
+import { getLastBlockNum } from '../utils'
 import { processCleanedLogs } from '../processAndUpload'
 import { viemClient } from '../viem/client'
 import { uploadLogs } from '../bundlr'
@@ -17,7 +18,7 @@ export async function getEvents() {
   const fetchPromises = []
 
   while (fromBlock <= currentBlock) {
-    console.log('From block: ', fromBlock)
+    console.log('From block: ', BigInt(fromBlock))
     const toBlock: bigint =
       fromBlock + BigInt(10000) > currentBlock
         ? currentBlock

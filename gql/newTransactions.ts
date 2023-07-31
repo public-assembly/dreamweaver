@@ -7,7 +7,7 @@ export const NEW_TRANSACTIONS_QUERY = gql`
       tags: [
         { name: "Content-Type", values: ["application/json"] }
         {
-          name: "Press Events - Optimism-Goerli v0.1"
+          name: "Database Events - Chain: ${process.env.CHAIN_ID} v0.1"
           values: [
             "SetupAP721"
             "DataStored"

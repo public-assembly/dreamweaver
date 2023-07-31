@@ -60,7 +60,7 @@ function processTransactions(transactions: Transactions) {
 
   return transactions.edges.map((edge) => {
     const eventTag = edge.node.tags.find(
-      (tag) => tag.name === 'Press Events - Optimism-Goerli v0.1',
+      (tag) => tag.name === `Database Events - Chain: ${process.env.CHAIN_ID} v0.1`,
     )
     if (!eventTag || !eventTypes.includes(eventTag.value)) {
       return null
@@ -78,7 +78,7 @@ function shapeData(node: Node) {
   return {
     id: node.id,
     address: node.address,
-    eventType: tags['Press Events - Optimism-Goerli v0.1'],
+    eventType: tags[`Database Events - Chain: ${process.env.CHAIN_ID} v0.1`],
     tags,
   }
 }
