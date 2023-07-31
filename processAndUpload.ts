@@ -4,17 +4,15 @@ import { getTransactions } from './prisma/getTransactions'
 import { prisma } from './prisma/prismaClient'
 import {
   Transactions,
-  DatabaseLog,
   Node,
 } from './interfaces/transactionInterfaces'
+import { DatabaseLog } from './types'
 import { apolloClient } from './apollo/apolloClient'
 import { NEW_TRANSACTIONS_QUERY } from './gql'
 
 async function main() {
   await getBalance()
   await getTransactions()
-
-  console.log('Starting to fetch events...')
 
   const result = await getEvents()
   const { cleanedLogs } = result
@@ -60,7 +58,7 @@ function processTransactions(transactions: Transactions) {
 
   return transactions.edges.map((edge) => {
     const eventTag = edge.node.tags.find(
-      (tag) => tag.name === 'Press Events - Optimism-Goerli v0.1',
+      (tag) => tag.name === `Database Events - Chain: ${process.env.CHAIN_ID} v0.1`,
     )
     if (!eventTag || !eventTypes.includes(eventTag.value)) {
       return null
@@ -78,7 +76,7 @@ function shapeData(node: Node) {
   return {
     id: node.id,
     address: node.address,
-    eventType: tags['Press Events - Optimism-Goerli v0.1'],
+    eventType: tags[`Database Events - Chain: ${process.env.CHAIN_ID} v0.1`],
     tags,
   }
 }

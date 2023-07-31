@@ -3,7 +3,7 @@ import { LAST_EVENT_QUERY } from '../gql'
 import { getContractCreationTxn } from '.'
 import { viemClient } from '../viem/client'
 
-const getLastBlockNum = async () => {
+export const getLastBlockNum = async () => {
   const { data } = await apolloClient.query({
     query: LAST_EVENT_QUERY,
     variables: { owner: process.env.OWNER },
@@ -20,15 +20,7 @@ const getLastBlockNum = async () => {
       return
     }
 
-    const txnHash = txnResult.txHash
-    console.log(
-      'contractCreationTxn:',
-      txn,
-      'contract transaction hash:',
-      txnHash,
-    )
-
-    const { blockNumber } = await viemClient.getTransaction({ hash: txnHash })
+    const { blockNumber } = await viemClient.getTransaction({ hash: txnResult.txHash })
     console.log(
       `Starting indexing when contract was created @ block number: ${blockNumber}`,
     )
@@ -39,10 +31,7 @@ const getLastBlockNum = async () => {
   const txnId = data.transactions.edges[0].node.id
   const [txnData] = await (await fetch(`https://arweave.net/${txnId}`)).json()
 
-  console.log('transactiondata', txnData)
+  console.log('Transaction data', txnData)
+  
   return txnData?.blockNumber
 }
-
-getLastBlockNum()
-  .then((blockNumber) => console.log('Last block number:', blockNumber))
-  .catch((error) => console.error('An error occurred:', error))

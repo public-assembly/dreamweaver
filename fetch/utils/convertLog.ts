@@ -1,9 +1,10 @@
-import { DatabaseLog } from '../../interfaces/transactionInterfaces'
+import { Log } from 'viem'
 import { convertArgs } from './convertArgs'
+import { DatabaseLog } from '../../types'
 
+// TODO: type the arguments as Log from viem, fix resulting errors
 // rome-ignore lint: allow explicit any
 export function convertLog(log: any): DatabaseLog {
-  // @ts-expect-error
   return {
     address: log.address,
     blockHash: log.blockHash,
