@@ -10,6 +10,12 @@ import {
 
 const transport = http(
   `${process.env.ALCHEMY_ENDPOINT}/v2/${process.env.ALCHEMY_KEY}`,
+  {
+    batch: {
+      batchSize: 2000,
+      wait: 2000,
+    },
+  },
 )
 
 const chainObject = {

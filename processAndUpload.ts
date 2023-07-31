@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { getEvents } from './fetch/getEvents'
 import { getBalance } from './bundlr/utils/getBalance'
 import { getTransactions } from './prisma/getTransactions'

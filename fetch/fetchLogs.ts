@@ -31,6 +31,7 @@ export async function fetchLogs(fromBlock: bigint, toBlock: bigint) {
       ),
     ),
   )
+
   // console.log("raw logs", logs)
   // console.log("raw logs", logs.flat())
   return logs.flat()
