@@ -6,7 +6,7 @@ import env from '../../services/env';
 
 export async function getLastBlockNum() {
     const { data } = await apolloClient.query({ query: LAST_EVENT_QUERY, variables: { owner: env.OWNER } });
-    const apiUrl = `https://api-goerli-optimistic.etherscan.io/api?module=contract&action=getcontractcreation&contractaddresses=${env.CONTRACT_ADDRESS}&apikey=${env.OPTIMISM_GOERLI_API_KEY}`;
+    const apiUrl = `${env.API_URL}/api?module=contract&action=getcontractcreation&contractaddresses=${env.CONTRACT_ADDRESS}&apikey=${env.OPTIMISM_GOERLI_API_KEY}`;
   
     if (!data.transactions.edges.length) {
       const txn = await getContractCreationTxn(apiUrl);
