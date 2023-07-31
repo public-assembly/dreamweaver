@@ -1,5 +1,8 @@
-import ApolloClient from 'apollo-boost';
+import ApolloClient from 'apollo-boost'
 
 export const apolloClient = new ApolloClient({
-  uri: 'https://devnet.bundlr.network/graphql',
-});
+  uri:
+    process.env.NODE_ENV === 'production'
+      ? 'http://node1.bundlr.network/graphql'
+      : 'https://devnet.bundlr.network/graphql',
+})

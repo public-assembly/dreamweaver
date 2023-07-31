@@ -1,12 +1,12 @@
-import Bundlr from '@bundlr-network/client';
-import env from '../services/env';
+import Bundlr from '@bundlr-network/client'
 
-// initialize bundlr
 export const bundlr = new Bundlr(
-  'http://devnet.bundlr.network',
+  process.env.NODE_ENV === 'production'
+    ? 'http://node1.bundlr.network'
+    : 'http://devnet.bundlr.network',
   'ethereum',
   process.env.PRIVATE_KEY,
   {
-    providerUrl: `${env.BUNDLR_FUNDING_CHAIN}/v2/${env.SEPOLIA_ALCHEMY_KEY}`,
-  }
-);
+    providerUrl: `${process.env.ALCHEMY_ENDPOINT}/v2/${process.env.ALCHEMY_KEY}`,
+  },
+)

@@ -1,88 +1,48 @@
-import { type Log } from 'viem';
+import { type Log, type Hex, type Hash } from 'viem'
 
 export interface Tag {
-  name: string;
-  value: string;
+  name: string
+  value: string
 }
 
 export interface Node {
-  id: string;
-  address: string;
-  tags: Tag[];
+  id: string
+  address: string
+  tags: Tag[]
 }
 
 export interface Edge {
-  node: Node;
+  node: Node
 }
 
 export interface Transactions {
-  edges: Edge[];
+  edges: Edge[]
 }
 
 export interface GraphQLResponse {
-  transactions: Transactions;
+  transactions: Transactions
 }
 
-// sepolia
-// export interface APLogs extends Log {
-//   args?: {
-//     targetPress?: string;
-//     storeCaller?: string;
-//     tokenId?: bigint;
-//     pointer?: string;
-//     logic?: string;
-//     sender?: string;
-//     renderer?: string;
-//     newPress?: string;
-//     initialOwner?: string;
-//     initialLogic?: string;
-//     creator?: string;
-//     initialRenderer?: string;
-//     soulbound?: boolean;
-//   };
-//   eventName: string;
-// }
-
-// optimism goerli
-
-// export interface APLogs extends Log {
-//   args?: {
-//     ap721?: string;
-//     sender?: string;
-//     initialOwner?: string;
-//     logic?: string;
-//     renderer?: string;
-//     factory?: string;
-//     target?: string;
-//     store?: string;
-//     tokenId?: bigint;
-//     pointer?: string;
-//   }
-//   eventName: string;
-// }
-
-export interface APLogs {
-  address: string;
-  blockHash: string;
-  blockNumber: bigint;
-  data: string;
-  logIndex?: number;
-  removed?: boolean;
-  topics: [] | [signature: `0x${string}`];
-  transactionHash: string;
-  transactionIndex?: number;
+export interface DatabaseLog extends Log {
+  address: Hex
+  blockHash: Hex
+  blockNumber: bigint
+  data: Hash
+  logIndex: number
+  transactionHash: Hash
+  transactionIndex: number
+  removed: boolean
+  topics: [] | [signature: Hash]
   args?: {
-    ap721?: string;
-    sender?: string;
-    initialOwner?: string;
-    logic?: string;
-    renderer?: string;
-    factory?: string;
-    target?: string;
-    tokenId?: bigint;
-    pointer?: string;
-  };
-  eventName: string;
+    ap721?: string
+    sender?: string
+    initialOwner?: string
+    logic?: string
+    renderer?: string
+    factory?: string
+    target?: string
+    tokenId?: bigint
+    pointer?: string
+  }
+  eventName: string
 }
-
-

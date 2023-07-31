@@ -1,11 +1,35 @@
-import { createPublicClient, http } from 'viem';
-import { sepolia } from 'viem/chains';
-import env from '../services/env';
+import { createPublicClient, http } from 'viem'
+import {
+  mainnet,
+  sepolia,
+  optimism,
+  optimismGoerli,
+  zora,
+  zoraTestnet,
+} from 'viem/chains'
 
+const transport = http(
+  `${process.env.ALCHEMY_ENDPOINT}/v2/${process.env.ALCHEMY_KEY}`,
+  {
+    batch: {
+      batchSize: 2000,
+      wait: 2000,
+    },
+  },
+)
 
-const transport = http(`${env.API_URL}v2/${env.ALCHEMY_KEY}`);
+const chainObject = {
+  [mainnet.id]: mainnet,
+  [sepolia.id]: sepolia,
+  [optimism.id]: optimism,
+  [optimismGoerli.id]: optimismGoerli,
+  [zora.id]: zora,
+  [zoraTestnet.id]: zoraTestnet,
+  // Add other chains here...
+}
 
 export const viemClient = createPublicClient({
-  chain: sepolia,
+  // @ts-expect-error
+  chain: chainObject[Number(process.env.CHAIN_ID)],
   transport,
-});
+})

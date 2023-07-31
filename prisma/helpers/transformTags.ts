@@ -1,5 +1,5 @@
-import { Prisma } from '@prisma/client';
-import { Tag } from '../../interfaces/transactionInterfaces';
+import { Prisma } from '@prisma/client'
+import { Tag } from '../../interfaces/transactionInterfaces'
 
 export function transformTags(tags: Prisma.JsonValue): Tag[] {
   // check if tags is an array
@@ -15,14 +15,14 @@ export function transformTags(tags: Prisma.JsonValue): Tag[] {
         return {
           name: String(tag.name),
           value: String(tag.value),
-        };
+        }
       } else {
         // if the tag is not an object with 'name' and 'value' fields, return a default Tag
-        return { name: '', value: '' };
+        return { name: '', value: '' }
       }
-    });
+    })
   } else {
     // If tags is not an array, return an empty array
-    return [];
+    return []
   }
 }
