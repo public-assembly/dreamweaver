@@ -4,10 +4,12 @@ import { objectKeys } from '../utils';
 config();
 
 interface Env {
+  NODE_ENV: string;
   OWNER: string;
   CONTRACT_ADDRESS: string;
   ETHERSCAN_API_KEY: string;
   ALCHEMY_KEY: string;
+  ALCHEMY_ENDPOINT: string;
   OPTIMISM_GOERLI_API_KEY: string;
   API_URL: string;
   BUNDLR_FUNDING_CHAIN: string;
@@ -15,10 +17,12 @@ interface Env {
 }
 
 const env: Env = {
+  NODE_ENV: process.env.NODE_ENV as string,
   OWNER: process.env.OWNER as string,
   CONTRACT_ADDRESS: process.env.CONTRACT_ADDRESS as string,
   ETHERSCAN_API_KEY: process.env.ETHERSCAN_API_KEY as string,
   ALCHEMY_KEY: process.env.ALCHEMY_KEY as string,
+  ALCHEMY_ENDPOINT: process.env.ALCHEMY_ENDPOINT as string,
   OPTIMISM_GOERLI_API_KEY: process.env.OPTIMISM_GOERLI_API_KEY as string,
   API_URL: process.env.API_URL as string,
   BUNDLR_FUNDING_CHAIN: process.env.BUNDLR_FUNDING_CHAIN as string,
