@@ -1,6 +1,6 @@
-import { AP721DatabaseV1Abi } from '../../abi/AP721DatabaseV1Abi';
-import { AP721_DATABASE_V1 } from '../../constants';
-import { EventObject } from '../../types';
+import { AP721DatabaseV1Abi } from '../../abi/AP721DatabaseV1Abi'
+import { AP721_DATABASE_V1 } from '../../constants'
+import { EventObject } from '../../types'
 
 export const eventNames = {
   DATA_OVERWRITTEN: 'DataOverwritten',
@@ -9,7 +9,7 @@ export const eventNames = {
   LOGIC_UPDATED: 'LogicUpdated',
   RENDERER_UPDATED: 'RendererUpdated',
   SETUP_AP721: 'SetupAP721',
-};
+}
 
 export const availableEventObjects: EventObject[] = [
   {
@@ -42,4 +42,4 @@ export const availableEventObjects: EventObject[] = [
     abi: AP721DatabaseV1Abi,
     address: AP721_DATABASE_V1.optimismGoerli,
   },
-];
+]

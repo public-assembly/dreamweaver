@@ -4,7 +4,7 @@
   "description": "Onchain event listener processing Assembly Press protocol events and posting them to Arweave.",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node processAndUpload.ts",
+    "start": "ts-node -r dotenv/config processAndUpload.ts",
     "lint": "rome check .",
     "format": "rome format . --write"
   },
@@ -23,7 +23,6 @@
     "graphql": "^16.7.1",
     "graphql-tag": "^2.12.6",
     "node-fetch": "2",
-    "package-name": "^0.1.0",
     "viem": "^1.4.1"
   },
   "devDependencies": {

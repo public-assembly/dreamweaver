@@ -1,9 +1,9 @@
-import { apolloClient } from '../../apollo/apolloClient'
-import { LAST_EVENT_QUERY } from '../../gql'
-import { getContractCreationTxn } from '../../utils'
-import { viemClient } from '../../viem/client'
+import { apolloClient } from '../apollo/apolloClient'
+import { LAST_EVENT_QUERY } from '../gql'
+import { getContractCreationTxn } from '.'
+import { viemClient } from '../viem/client'
 
-export async function getLastBlockNum() {
+const getLastBlockNum = async () => {
   const { data } = await apolloClient.query({
     query: LAST_EVENT_QUERY,
     variables: { owner: process.env.OWNER },
@@ -42,3 +42,7 @@ export async function getLastBlockNum() {
   console.log('transactiondata', txnData)
   return txnData?.blockNumber
 }
+
+getLastBlockNum()
+  .then((blockNumber) => console.log('Last block number:', blockNumber))
+  .catch((error) => console.error('An error occurred:', error))

@@ -1,4 +1,4 @@
-import { createPublicClient, http } from 'viem';
+import { createPublicClient, http } from 'viem'
 import {
   mainnet,
   sepolia,
@@ -6,10 +6,11 @@ import {
   optimismGoerli,
   zora,
   zoraTestnet,
-} from 'viem/chains';
-import env from '../services/env';
+} from 'viem/chains'
 
-const transport = http(`${env.ALCHEMY_ENDPOINT}v2/${env.ALCHEMY_KEY}`);
+const transport = http(
+  `${process.env.ALCHEMY_ENDPOINT}/v2/${process.env.ALCHEMY_KEY}`,
+)
 
 const chainObject = {
   [mainnet.id]: mainnet,
@@ -19,10 +20,10 @@ const chainObject = {
   [zora.id]: zora,
   [zoraTestnet.id]: zoraTestnet,
   // Add other chains here...
-};
+}
 
 export const viemClient = createPublicClient({
   // @ts-expect-error
-  chain: chainObject[Number(env.CHAIN_ID)],
+  chain: chainObject[Number(process.env.CHAIN_ID)],
   transport,
-});
+})

@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from 'graphql-tag'
 
 export const NEW_TRANSACTIONS_QUERY = gql`
   query NewTransactions($owner: String!) {
@@ -32,4 +32,4 @@ export const NEW_TRANSACTIONS_QUERY = gql`
       }
     }
   }
-`;
+`

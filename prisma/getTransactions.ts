@@ -1,6 +1,6 @@
-import { prisma } from "./prismaClient";
+import { prisma } from './prismaClient'
 
 export async function getTransactions() {
-  const transactions = await prisma.transaction.findMany();
-  return transactions;
+  const transactions = await prisma.transaction.findMany()
+  return transactions
 }

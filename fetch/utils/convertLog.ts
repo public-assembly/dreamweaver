@@ -1,7 +1,9 @@
-import { APLogs } from '../../interfaces/transactionInterfaces';
-import { convertArgs } from './convertArgs';
+import { DatabaseLog } from '../../interfaces/transactionInterfaces'
+import { convertArgs } from './convertArgs'
 
-export function convertLog(log: any): APLogs {
+// rome-ignore lint: allow explicit any
+export function convertLog(log: any): DatabaseLog {
+  // @ts-expect-error
   return {
     address: log.address,
     blockHash: log.blockHash,
@@ -11,5 +13,5 @@ export function convertLog(log: any): APLogs {
     transactionHash: log.transactionHash,
     args: convertArgs(log.args as object), // Cast args to object
     eventName: log.eventName,
-  };
+  }
 }

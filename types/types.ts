@@ -1,7 +1,7 @@
-import { type Abi, type Hex } from 'viem';
+import { type Abi, type Hex } from 'viem'
 
 export type EventObject = {
-  event: string;
-  abi: Abi;
-  address: Hex;
-};
+  event: string
+  abi: Abi
+  address: Hex
+}

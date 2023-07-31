@@ -1,6 +1,6 @@
-import { APLogs } from '../interfaces/transactionInterfaces';
+import { DatabaseLog } from '../interfaces/transactionInterfaces'
 
-export function cleanLog(log: APLogs) {
+export function cleanLog(log: DatabaseLog) {
   const {
     address = '0x0', // Default value
     blockNumber = BigInt(0),
@@ -13,7 +13,7 @@ export function cleanLog(log: APLogs) {
     transactionIndex = 0, // Default value
     removed = false, // Default value
     topics = [], // Default value
-  } = log;
+  } = log
 
   return {
     address,
@@ -27,5 +27,5 @@ export function cleanLog(log: APLogs) {
     transactionIndex,
     removed,
     topics,
-  };
+  }
 }
