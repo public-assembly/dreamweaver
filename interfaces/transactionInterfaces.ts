@@ -68,7 +68,7 @@ export interface APLogs {
   data: string;
   logIndex?: number;
   removed?: boolean;
-  topics: string[];
+  topics: [] | [signature: `0x${string}`];
   transactionHash: string;
   transactionIndex?: number;
   args?: {
