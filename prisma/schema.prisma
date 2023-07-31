@@ -14,59 +14,29 @@ model Transaction {
   tags      Json
 }
 
-model SetupAP721 {
+model PressSettings {
   id           Int      @id @default(autoincrement())
-  ap721        String
-  sender       String
-  initialOwner String
-  logic        String
-  renderer     String
-  factory      String
+  ap721        String?  @unique
+  sender       String?
+  initialOwner String?
+  logic        String?
+  renderer     String?
+  factory      String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  eventType    String
+  target       String?
 }
 
-model DataStored {
+model TokenStorage {
   id        Int      @id @default(autoincrement())
+  eventType String
+  pointer   String?
+  sender    String
   target    String
   tokenId   BigInt
-  pointer   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  sender    String
-}
 
-model DataOverwritten {
-  id        Int      @id @default(autoincrement())
-  target    String
-  sender    String
-  pointer   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  tokenId   BigInt
-}
-
-model DataRemoved {
-  id        Int      @id @default(autoincrement())
-  target    String
-  sender    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  tokenId   BigInt
-}
-
-model LogicUpdated {
-  id        Int      @id @default(autoincrement())
-  target    String
-  logic     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model RendererUpdated {
-  id        Int      @id @default(autoincrement())
-  target    String
-  renderer  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  @@unique([target, sender, tokenId])
 }

@@ -1,14 +1,13 @@
-import { getEvents } from './fetch';
-import { getBalance } from './bundlr/getBalance';
+import { getEvents } from './fetch/getEvents';
+import { getBalance } from './bundlr/utils/getBalance';
 import { getTransactions } from './prisma/getTransactions';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from './prisma/prismaClient';
 import { Transactions, APLogs, Node } from './interfaces/transactionInterfaces';
 import { apolloClient } from './apollo/apolloClient';
 import { NEW_TRANSACTIONS_QUERY } from './gql';
+
 import { replacer } from './utils';
 import env from './services/env';
-
-const prisma = new PrismaClient();
 
 async function main() {
   await getBalance();
@@ -19,33 +18,16 @@ async function main() {
   const result = await getEvents();
   const { cleanedLogs } = result;
 
-  async function getFromBlock() {
-    if (typeof result === 'string') {
-      console.log('No new logs to upload.');
-      return;
-    }
-
-    const logs = JSON.parse(result.logsJson);
-    const lastLog = logs[logs.length - 1];
-    const blockNumber = lastLog.blockNumber;
-    // const blockNumber = BigInt(3833867);
-    console.log('last blocknumber:', blockNumber);
-    let fromBlock = BigInt(blockNumber) + BigInt(1);
-
-    console.log('Next fromBlock:', fromBlock);
-  }
-
-  await getFromBlock();
-
   const { data } = await apolloClient.query({
     query: NEW_TRANSACTIONS_QUERY,
     variables: { owner: env.OWNER },
   });
+
   const processedTransactions = processTransactions(data.transactions);
 
   for (const transaction of processedTransactions) {
     if (transaction) {
-      console.log(`transaction: ${JSON.stringify(transaction, replacer, 2)}`);
+      // console.log(`transaction: ${JSON.stringify(transaction, replacer, 2)}`);
       await prisma.transaction
         .create({
           data: {
@@ -55,24 +37,15 @@ async function main() {
             tags: transaction.tags,
           }
         })
-        .catch((e) => console.error('Error upserting transaction:', e.message));
+        .catch((e: Error) => console.error('Error upserting transaction:', e.message));
     }
   }
 
   await processCleanedLogs(cleanedLogs);
-}
+  console.log('Finished processing cleaned logs');
 
-//sepolia
-// function processTransactions(transactions: Transactions) {
-//   const eventTypes = [
-//     'Create721Press',
-//     'DataStored',
-//     'DataRemoved',
-//     'DataOverwritten',
-//     'LogicUpdated',
-//     'PressInitialized',
-//     'RendererUpdated',
-//   ];
+
+}
 
 // optimism goerli 
 function processTransactions(transactions: Transactions) {
@@ -86,7 +59,7 @@ function processTransactions(transactions: Transactions) {
   ];
 
   return transactions.edges.map((edge) => {
-    const eventTag = edge.node.tags.find((tag) => tag.name === 'Press Events');
+    const eventTag = edge.node.tags.find((tag) => tag.name === "Press Events - Optimism-Goerli v0.1");
     if (!eventTag || !eventTypes.includes(eventTag.value)) {
       return null;
     }
@@ -103,189 +76,14 @@ function shapeData(node: Node) {
   return {
     id: node.id,
     address: node.address,
-    eventType: tags['Press Events'],
+    eventType: tags["Press Events - Optimism-Goerli v0.1"],
     tags,
   };
 }
 
-// sepolia
-// export async function processCleanedLogs(
-//   cleanedLogs: APLogs[]
-// ) {
-//   // console.log('processCleanedLogs function called');
-//   //   console.log('Processing cleaned logs...');
-//   // console.log('transactions.edges:', transactions.edges);
-//   const eventArgs = cleanedLogs.map(log => ({ args: log.args, eventName: log.eventName}));
-//   console.log('cleanedLogs:', `${JSON.stringify(cleanedLogs, replacer, 2)}`);
-//     for (const log of cleanedLogs) {
-//       console.log('log:', log);
-//       if (!log.args) {
-//         console.log(`Skipping log due to missing args: ${JSON.stringify(log)}`);
-//         continue;
-//       }
-//       console.log(`Processing log with event name: ${log.eventName}`);
-//       switch (log.eventName) {
-//         case 'Create721Press':
-//           console.log(log.args);
-//           console.log(log.eventName);
-          // if (
-          //   log.args.newPress &&
-          //   log.args.initialOwner &&
-          //   log.args.initialLogic &&
-          //   log.args.creator &&
-          //   log.args.initialRenderer &&
-          //   typeof log.args.soulbound !== 'undefined'
-          // ) {
-//             const createPressEvent = {
-
-//               data: {
-//                 newPress: log.args.newPress,
-//                 initialOwner: log.args.initialOwner,
-//                 initialLogic: log.args.initialLogic,
-//                 creator: log.args.creator,
-//                 initialRenderer: log.args.initialRenderer,
-//                 soulbound: log.args.soulbound,
-//               },
-
-//             };
-//             try {
-//               await prisma.create721Press.create(createPressEvent);
-//             } catch (e) {
-//               if (e instanceof Error) {
-//                 console.error(
-//                   'Error upserting Create721Press event:',
-//                   e.message
-//                 );
-//               } else {
-//                 console.error(
-//                   'An error occurred while upserting Create721Press event'
-//                 );
-//               }
-//             }
-//           }
-//           break;
-//         case 'RendererUpdated':
-//           console.log(log.args);
-//           console.log(log.eventName);
-//           if ( log.args.targetPress && log.args.renderer) {
-//             const rendererEvent = {
-
-//               data: {
-//                 targetPress: log.args.targetPress,
-//                 renderer: log.args.renderer,
-//               }
-//             };
-//             try {
-//               await prisma.rendererUpdated.create(rendererEvent);
-//             } catch (e) {
-//               if (e instanceof Error) {
-//                 console.error(
-//                   'Error upserting Create721Press event:',
-//                   e.message
-//                 );
-//               } else {
-//                 console.error(
-//                   'An error occurred while upserting Create721Press event'
-//                 );
-//               }
-//             }
-//           }
-//           break;
-//         case 'DataStored':
-//           console.log(log.args);
-//           console.log(log.eventName);
-//           if (
-//             log.args.targetPress &&
-//             log.args.storeCaller &&
-//             log.args.tokenId &&
-//             log.args.pointer
-//           ) {
-//             const dataStoredEvent = {
-//               data: {
-//                 targetPress: log.args.targetPress,
-//                 storeCaller: log.args.storeCaller,
-//                 tokenId: log.args.tokenId,
-//                 pointer: log.args.pointer,
-//               }
-//             };
-//             try {
-//               await prisma.dataStored.create(dataStoredEvent);
-//             } catch (e) {
-//               if (e instanceof Error) {
-//                 console.error(
-//                   'Error upserting Create721Press event:',
-//                   e.message
-//                 );
-//               } else {
-//                 console.error(
-//                   'An error occurred while upserting Create721Press event'
-//                 );
-//               }
-//             }
-//           }
-//           break;
-//         case 'LogicUpdated':
-//           console.log(log.args);
-//           console.log(log.eventName);
-//           if ( log.args.targetPress && log.args.logic) {
-//             const logicEvent = {
-//               data: {
-//                 targetPress: log.args.targetPress,
-//                 logic: log.args.logic,
-//               }
-//             };
-//             try {
-//               await prisma.logicUpdated.create(logicEvent);
-//             } catch (e) {
-//               if (e instanceof Error) {
-//                 console.error(
-//                   'Error upserting Create721Press event:',
-//                   e.message
-//                 );
-//               } else {
-//                 console.error(
-//                   'An error occurred while upserting Create721Press event'
-//                 );
-//               }
-//             }
-//           }
-//           break;
-//         case 'PressInitialized':
-//           console.log(log.args);
-//           console.log(log.eventName);
-//           if ( log.args.targetPress && log.args.sender) {
-//             const pressEvent = {
-//               data: {
-//                 sender: log.args.sender,
-//                 targetPress: log.args.targetPress,
-//               }
-//             };
-//             try {
-//               await prisma.pressInitialized.create(pressEvent);
-//             } catch (e) {
-//               if (e instanceof Error) {
-//                 console.error(
-//                   'Error upserting Create721Press event:',
-//                   e.message
-//                 );
-//               } else {
-//                 console.error(
-//                   'An error occurred while upserting Create721Press event'
-//                 );
-//               }
-//             }
-//           }
-//           break;
-//         default:
-//           console.log(`Unknown event type: ${log.eventName}`);
-//       }
-//     }
-//   }
-
 // optimism goerli
 export async function processCleanedLogs(cleanedLogs: APLogs[]) {
   for (const log of cleanedLogs) {
-    console.log('log:', log);
     if (!log.args) {
       console.log(`Skipping log due to missing args: ${JSON.stringify(log)}`);
       continue;
@@ -294,115 +92,103 @@ export async function processCleanedLogs(cleanedLogs: APLogs[]) {
     try {
       switch (log.eventName) {
         case 'SetupAP721':
+          console.log('Checking conditions for SetupAP721...');
           if (
-            log.args.ap721  &&
+            log.args.ap721 &&
             log.args.sender &&
-            log.args.initialOwner  &&
-            log.args.logic  &&
+            log.args.initialOwner &&
+            log.args.logic &&
             log.args.renderer &&
             log.args.factory !== undefined
           ) {
-            await prisma.setupAP721.create({
+            console.log('Conditions met for SetupAP721. Attempting to populate pressSettings table...');
+            await prisma.pressSettings.create({
+   
               data: {
-                ap721: log.args.ap721,
                 sender: log.args.sender,
                 initialOwner: log.args.initialOwner,
                 logic: log.args.logic,
                 renderer: log.args.renderer,
                 factory: log.args.factory,
-              },
+                eventType: log.eventName,
+              }
             });
+            console.log('Successfully populated pressSettings table.');
+          } else {
+            console.log('Conditions for populating pressSettings table not met.');
           }
           break;
+          case 'LogicUpdated':
+            console.log('Checking conditions for LogicUpdated...');
+            if (log.args.target && log.args.logic !== undefined) {
+              console.log('Conditions met for LogicUpdated. Attempting to update pressSettings table...');
+              await prisma.pressSettings.create({
+                data: {
+                  logic: log.args.logic,
+                  target: log.args.target,
+                  eventType: log.eventName,
+                },
+              });
+              console.log('Successfully updated pressSettings table for LogicUpdated.');
+            } else {
+              console.log('Conditions for updating pressSettings table not met for LogicUpdated.');
+            }
+            break;
+          case 'RendererUpdated':
+            console.log('Checking conditions for RendererUpdated...');
+            if (log.args.target && log.args.renderer !== undefined) {
+              console.log('Conditions met for RendererUpdated. Attempting to update pressSettings table...');
+              await prisma.pressSettings.create({
+                data: {
+                  renderer: log.args.renderer,
+                  target: log.args.target,
+                  eventType: log.eventName,
+                },
+              });
+              console.log('Successfully updated pressSettings table for RendererUpdated.');
+            } else {
+              console.log('Conditions for updating pressSettings table not met for RendererUpdated.');
+            }
+            break;
         case 'DataStored':
-          if (
-            log.args.target &&
-            log.args.sender  &&
-            log.args.tokenId  &&
-            log.args.pointer !== undefined
-          ) {
-            await prisma.dataStored.create({
-              data: {
-                target: log.args.target,
-                sender: log.args.sender,
-                tokenId: log.args.tokenId,
-                pointer: log.args.pointer,
-              },
-            });
-          }
-          break;
         case 'DataOverwritten':
+          console.log('Checking conditions for DataStored/DataOverwritten...');
           if (
             log.args.target &&
             log.args.sender &&
             log.args.tokenId &&
-            log.args.pointer !== undefined
+            log.args.pointer
           ) {
-            await prisma.dataOverwritten.create({
-              data: {
+            console.log('Conditions met for DataStored/DataOverwritten. Attempting to populate tokenStorage table...');
+            await prisma.tokenStorage.upsert({
+              where: { target_sender_tokenId: { target: log.args.target, sender: log.args.sender, tokenId: log.args.tokenId } },
+              update: {
+                target: log.args.target,
+                sender: log.args.sender,
+                pointer: log.args.pointer,
+                eventType: log.eventName,
+              },
+              create: {
                 target: log.args.target,
                 sender: log.args.sender,
                 tokenId: log.args.tokenId,
                 pointer: log.args.pointer,
+                eventType: log.eventName,
               },
             });
-          }
-          break;
-        case 'DataRemoved':
-          if (
-            log.args.target !== undefined &&
-            log.args.sender !== undefined &&
-            log.args.tokenId !== undefined
-          ) {
-            await prisma.dataRemoved.create({
-              data: {
-                target: log.args.target,
-                sender: log.args.sender,
-                tokenId: log.args.tokenId,
-              },
-            });
-          }
-          break;
-        case 'LogicUpdated':
-          if (
-            log.args.target !== undefined &&
-            log.args.logic !== undefined
-          ) {
-            await prisma.logicUpdated.create({
-              data: {
-                target: log.args.target,
-                logic: log.args.logic,
-              },
-            });
-          }
-          break;
-        case 'RendererUpdated':
-          if (
-            log.args.target !== undefined &&
-            log.args.renderer !== undefined
-          ) {
-            await prisma.rendererUpdated.create({
-              data: {
-                target: log.args.target,
-                renderer: log.args.renderer,
-              },
-            });
+            console.log('Successfully populated tokenStorage table.');
+          } else {
+            console.log('Conditions for populating tokenStorage table not met.');
           }
           break;
         default:
           console.log(`Unknown event type: ${log.eventName}`);
       }
     } catch (e) {
-      if (e instanceof Error) {
-        console.error(`Error processing event ${log.eventName}:`, e.message);
-      } else {
-        console.error(`An error occurred while processing event ${log.eventName}`);
-      }
+      console.error(`Error processing event ${log.eventName}:`, e);
     }
   }
 }
-
-
 
 
 main()
@@ -414,3 +200,4 @@ main()
     console.log('Finished all Prisma operations, disconnecting...');
     await prisma.$disconnect();
   });
+

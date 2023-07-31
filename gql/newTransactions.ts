@@ -7,14 +7,13 @@ export const NEW_TRANSACTIONS_QUERY = gql`
       tags: [
         { name: "Content-Type", values: ["application/json"] }
         {
-          name: "Press Events"
+          name: "Press Events - Optimism-Goerli v0.1"
           values: [
-            "Create721Press"
+            "SetupAP721"
             "DataStored"
             "DataRemoved"
             "DataOverwritten"
             "LogicUpdated"
-            "PressInitialized"
             "RendererUpdated"
           ]
         }

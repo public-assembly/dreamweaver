@@ -1,4 +1,5 @@
 import Bundlr from '@bundlr-network/client';
+import env from '../services/env';
 
 // initialize bundlr
 export const bundlr = new Bundlr(
@@ -6,6 +7,6 @@ export const bundlr = new Bundlr(
   'ethereum',
   process.env.PRIVATE_KEY,
   {
-    providerUrl: `https://eth-sepolia.g.alchemy.com/v2/${process.env.SEPOLIA_RPC_URL}`,
+    providerUrl: `${env.BUNDLR_FUNDING_CHAIN}/v2/${env.SEPOLIA_ALCHEMY_KEY}`,
   }
 );
