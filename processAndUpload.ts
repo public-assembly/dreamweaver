@@ -4,17 +4,15 @@ import { getTransactions } from './prisma/getTransactions'
 import { prisma } from './prisma/prismaClient'
 import {
   Transactions,
-  DatabaseLog,
   Node,
 } from './interfaces/transactionInterfaces'
+import { DatabaseLog } from './types'
 import { apolloClient } from './apollo/apolloClient'
 import { NEW_TRANSACTIONS_QUERY } from './gql'
 
 async function main() {
   await getBalance()
   await getTransactions()
-
-  console.log('Starting to fetch events...')
 
   const result = await getEvents()
   const { cleanedLogs } = result

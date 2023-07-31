@@ -8,7 +8,6 @@ export const getLastBlockNum = async () => {
     query: LAST_EVENT_QUERY,
     variables: { owner: process.env.OWNER },
   })
-  console.log('Query data', data)
   const etherscanApiUrl = `${process.env.ETHERSCAN_ENDPOINT}/api?module=contract&action=getcontractcreation&contractaddresses=${process.env.DATABASE_ADDRESS}&apikey=${process.env.ETHERSCAN_API_KEY}`
 
   if (!data.transactions.edges.length) {

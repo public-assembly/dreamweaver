@@ -4,7 +4,6 @@ import { getLastBlockNum } from '../utils'
 import { processCleanedLogs } from '../processAndUpload'
 import { viemClient } from '../viem/client'
 import { uploadLogs } from '../bundlr'
-import { replacer } from '../utils'
 
 export async function getEvents() {
   console.log('Fetching events...')
@@ -13,7 +12,6 @@ export async function getEvents() {
   console.log(`Current block number is ${currentBlock}`)
 
   let fromBlock = await getLastBlockNum()
-  const initialFromBlock = fromBlock
 
   const fetchPromises = []
 
@@ -30,11 +28,8 @@ export async function getEvents() {
     fromBlock = toBlock + BigInt(1)
   }
 
-  // wait for all fetch operations to complete
-  const allLogsArrays = await Promise.all(fetchPromises)
-
-  // flatten the array of arrays into a single array
-  const allLogs = allLogsArrays.flat()
+  // wait for the fetch operations to complete and flatten the returned arrays into one
+  const allLogs = (await Promise.all(fetchPromises)).flat()
 
   // sort allLogs
   allLogs.sort((a, b) => {
@@ -55,26 +50,11 @@ export async function getEvents() {
     }
   }
 
-  const logsJson = JSON.stringify(
-    {
-      jobAnalysis: {
-        fromBlock: String(initialFromBlock),
-        toBlock: String(currentBlock),
-      },
-      logs: {
-        allEvents: cleanedLogs,
-      },
-    },
-    replacer,
-    2,
-  )
-  console.log('Returning logs...')
-
   await processCleanedLogs(cleanedLogs)
 
   if (cleanedLogs.length > 0) {
     await uploadLogs(cleanedLogs)
   }
 
-  return { logsJson, cleanedLogs, eventName: availableEventObjects[0].event }
+  return { cleanedLogs, eventName: availableEventObjects[0].event }
 }

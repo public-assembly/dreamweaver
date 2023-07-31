@@ -1,4 +1,4 @@
-import { DatabaseLog } from '../interfaces/transactionInterfaces'
+import { DatabaseLog } from '../types'
 
 export function cleanLog(log: DatabaseLog) {
   const {
@@ -8,10 +8,7 @@ export function cleanLog(log: DatabaseLog) {
     args = {},
     eventName,
     data = '0x0', // Default value
-    logIndex = 0, // Default value
     transactionHash = '0x0', // Default value
-    transactionIndex = 0, // Default value
-    removed = false, // Default value
     topics = [], // Default value
   } = log
 
@@ -22,10 +19,7 @@ export function cleanLog(log: DatabaseLog) {
     args,
     eventName,
     data,
-    logIndex,
     transactionHash,
-    transactionIndex,
-    removed,
     topics,
   }
 }
